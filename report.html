@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายงานการประเมินกายภาพบำบัด - ระบบกายภาพบำบัดสำหรับผู้ป่วยหลังเส้นเลือดสมองแตก</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/report.css">
+</head>
+<body>
+    <!-- User Header -->
+    <div class="user-header">
+        <div class="user-header-content">
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">ผู้ใช้งาน</span>
+                    <span class="user-status">เข้าสู่ระบบแล้ว</span>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                    กลับ
+                </button>
+                <button class="nav-btn logout-btn" onclick="exitSystem()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    ออกจากระบบ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>รายงานการประเมินกายภาพบำบัด</h1>
+            <p class="subtitle">ผลการประเมินและข้อเสนอแนะสำหรับการฟื้นฟูสมรรถภาพ</p>
+        </div>
+
+        <!-- Report Card -->
+        <div class="report-card">
+            <div class="report-header">
+                <div class="report-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="report-title">
+                    <h2>รายงานการประเมิน</h2>
+                    <p class="report-date">วันที่ประเมิน: <span id="assessmentDate">11 กันยายน 2568</span></p>
+                </div>
+                <div class="report-status">
+                    <span class="status-badge completed">ดำเนินการเสร็จสิ้น</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Patient Info -->
+        <div class="info-section">
+            <h3 class="section-title">ข้อมูลผู้ป่วย</h3>
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="label">ชื่อ-นามสกุล:</span>
+                    <span class="value" id="patientName">คุณ ผู้ใช้งาน</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">อายุ:</span>
+                    <span class="value">65 ปี</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">เพศ:</span>
+                    <span class="value">ชาย</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Exercise History Section -->
+        <div class="results-section">
+            <h3 class="section-title">ประวัติการออกกำลังกาย</h3>
+            
+            <!-- Therapy Table Section -->
+            <div class="therapy-table-section">
+                <div class="table-controls">
+                    <div class="table-info">
+                        <span>แสดง</span>
+                        <select id="entriesSelect">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>รายการ</span>
+                    </div>
+                    <div class="search-box">
+                        <input type="text" id="searchInput" placeholder="ค้นหา...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="therapy-table" id="therapyTable">
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>เวลา</th>
+                                <th>ท่าทางการกายภาพ</th>
+                                <th>จำนวนด้านซ้าย</th>
+                                <th>จำนวนด้านขวา</th>
+                                <th>รวม</th>
+                                <th>เกณฑ์</th>
+                            </tr>
+                        </thead>
+                        <tbody id="therapyTableBody">
+                            <!-- ข้อมูลจะถูกเพิ่มโดย JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-footer">
+                    <div class="table-info-footer">
+                        <span id="tableInfoText">แสดง 0 ถึง 0 จาก 0 รายการ</span>
+                    </div>
+                    <div class="pagination">
+                        <button class="page-btn" id="prevBtn" disabled>ก่อนหน้า</button>
+                        <span class="page-info" id="pageInfo">1</span>
+                        <button class="page-btn" id="nextBtn" disabled>ถัดไป</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Chart Section -->
+            <div class="chart-section">
+                <div class="chart-card">
+                    <h4>รายงานความก้าวหน้าประจำสัปดาห์</h4>
+                    <p class="chart-subtitle" id="chartSubtitle">ข้อมูลการออกกำลังกายล่าสุด</p>
+                    <div class="chart-container">
+                        <canvas id="progressChart" width="400" height="200"></canvas>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recommendations -->
+            <div class="recommendation-card">
+                <div class="rec-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h4>การติดตาม</h4>
+                <ul id="followUpRecommendations">
+                    <li>นัดหมายประเมินผลในอีก 2 สัปดาห์</li>
+                    <li>บันทึกความก้าวหน้าทุกวัน</li>
+                    <li>รายงานอาการผิดปกติทันที</li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn-secondary" onclick="printReport()">
+                <i class="fas fa-print"></i>
+                พิมพ์รายงาน
+            </button>
+            <button class="btn-primary" onclick="continueExercise()">
+                <i class="fas fa-play"></i>
+                ออกกำลังกายต่อ
+            </button>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>กำลังประมวลผล...</p>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/report.js"></script>
+</body>
+</html>

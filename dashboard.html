@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ระบบกายภาพบำบัดสำหรับผู้ป่วยหลังเส้นเลือดสมองแตก(Stroke)</title>
+    
+    <!-- External Dependencies -->
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <!-- User Header -->
+    <div class="user-header">
+        <div class="user-header-content">
+            <!-- ชื่อผู้ใช้ทางซ้าย -->
+            <div class="user-info">
+                <div class="user-avatar">
+                    <i class="fas fa-user-md"></i>
+                </div>
+                <div class="user-details">
+                    <span class="user-name" id="userName">นานาจิตตัง</span>
+                    <span class="user-status">เข้าสู่ระบบแล้ว</span>
+                </div>
+            </div>
+            
+            <!-- โลโก้และไอคอนแจ้งเตือนทางขวา -->
+            <div class="header-right">
+                <img src="image/logo.png" alt="SmartCare Logo" class="header-logo">
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>สวัสดี <span id="greetingName"></span>!</h1>
+            <p class="subtitle">พร้อมเริ่มการฟื้นฟูสมรรถภาพวันนี้แล้วหรือยัง</p>
+        </div>
+
+        <!-- Section Title -->
+        <h2 class="section-title">ท่าการฟื้นฟูสำหรับคุณ</h2>
+
+        <!-- Exercise Grid -->
+        <div class="exercise-grid">
+            <!-- Card 1: ยกแขนไปข้างหน้า -->
+            <div class="exercise-card orange-card" onclick="selectExercise('arm-raise-forward')">
+                <div class="exercise-illustration">
+                    <div class="person-icon">
+                        <i class="fas fa-hand-paper"></i>
+                    </div>
+                </div>
+                <h3>ยกแขนไปข้างหน้า</h3>
+                <div class="exercise-meta">
+                    <span class="duration">
+                        <i class="fas fa-play-circle"></i>
+                        5 นาที
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 2: เหยียดเข่าตรง -->
+            <div class="exercise-card blue-card" onclick="selectExercise('leg-extension')">
+                <div class="exercise-illustration">
+                    <div class="person-icon">
+                        <i class="fas fa-walking"></i>
+                    </div>
+                </div>
+                <h3>เหยียดเข่าตรง</h3>
+                <div class="exercise-meta">
+                    <span class="duration">
+                        <i class="fas fa-play-circle"></i>
+                        8 นาที
+                    </span>
+                </div>
+            </div>
+
+            <!-- Card 3: โยกลำตัวซ้าย-ขวา -->
+            <div class="exercise-card pink-card" onclick="selectExercise('trunk-sway')">
+                <div class="exercise-illustration">
+                    <div class="person-icon">
+                        <i class="fas fa-sync-alt"></i>
+                    </div>
+                </div>
+                <h3>โยกลำตัวซ้าย-ขวา</h3>
+                <div class="exercise-meta">
+                    <span class="duration">
+                        <i class="fas fa-play-circle"></i>
+                        10 นาที
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Menu Section Title -->
+        <h2 class="section-title" style="margin-top: 48px;">เมนูอื่นๆ</h2>
+
+        <!-- Bottom Navigation Icons (simplified menu) -->
+        <div class="bottom-menu">
+            <a href="profile-edit.html" class="menu-icon-item">
+                <div class="menu-icon">
+                    <i class="fas fa-user-injured"></i>
+                </div>
+                <span>ข้อมูลส่วนตัว</span>
+            </a>
+
+            <a href="report.html" class="menu-icon-item">
+                <div class="menu-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <span>รายงานการประเมิน</span>
+            </a>
+
+            <a href="contact.html" class="menu-icon-item">
+                <div class="menu-icon">
+                    <i class="fas fa-user-doctor"></i>
+                </div>
+                <span>ติดต่อผู้เชี่ยวชาญ</span>
+            </a>
+
+            <a href="#" onclick="exitSystem(); return false;" class="menu-icon-item">
+                <div class="menu-icon logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+                <span>ออกจากระบบ</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="spinner"></div>
+        <p>กำลังเตรียมระบบ...</p>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script>
+        function selectExercise(exerciseType) {
+            // แสดง loading
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+            
+            // เปลี่ยนหน้าไปยังหน้าคำแนะนำ
+            setTimeout(() => {
+                window.location.href = `exercise-instruction.html?type=${exerciseType}`;
+            }, 500);
+        }
+
+        function scrollToExercises() {
+            document.querySelector('.exercise-grid').scrollIntoView({ 
+                behavior: 'smooth',
+                block: 'center'
+            });
+        }
+
+        function exitSystem() {
+            if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
+                // ✅ ลบข้อมูลทั้งหมด
+                localStorage.clear();
+                sessionStorage.clear();
+                
+                // แสดง loading
+                const loadingOverlay = document.getElementById('loadingOverlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.remove('hidden');
+                    const loadingText = loadingOverlay.querySelector('p');
+                    if (loadingText) {
+                        loadingText.textContent = 'กำลังออกจากระบบ...';
+                    }
+                }
+                
+                // ✅ ไปหน้า login
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1000);
+            }
+        }
+
+        // ✅ แก้ไข Search functionality - เพิ่ม null check
+        const searchInput = document.querySelector('.search-bar input');
+        
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value.toLowerCase();
+                const exerciseCards = document.querySelectorAll('.exercise-card');
+                
+                exerciseCards.forEach(card => {
+                    const title = card.querySelector('h3').textContent.toLowerCase();
+                    if (title.includes(searchTerm)) {
+                        card.style.display = 'block';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
+        
+        // ✅ โหลดชื่อผู้ใช้จาก localStorage/sessionStorage
+        window.addEventListener('DOMContentLoaded', () => {
+            try {
+                const userDataStr = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+                if (userDataStr) {
+                    const userData = JSON.parse(userDataStr);
+                    
+                    // อัพเดทชื่อผู้ใช้
+                    const userNameEl = document.getElementById('userName');
+                    const greetingNameEl = document.getElementById('greetingName');
+                    
+                    if (userData.full_name) {
+                        if (userNameEl) userNameEl.textContent = userData.full_name;
+                        if (greetingNameEl) greetingNameEl.textContent = userData.full_name;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,581 @@
+/* ==========================
+   SMARTCARE MEDICAL THEME - CAMERA PAGE
+========================== */
+:root {
+    --primary: #1E88E5;
+    --primary-dark: #1565C0;
+    --primary-light: #42A5F5;
+    --secondary: #66BB6A;
+    --success: #66BB6A;
+    --warning: #FFA726;
+    --danger: #E53E3E;
+
+    --surface: #ffffff;
+    --text-main: #0F172A;
+    --text-sub: #64748B;
+    --text-white: #ffffff;
+
+    --radius-xl: 40px;
+    --radius-lg: 28px;
+    --radius-md: 20px;
+
+    --elevation-1: 0 4px 16px rgba(0,0,0,0.08);
+    --elevation-2: 0 8px 32px rgba(0,0,0,0.12);
+    --elevation-3: 0 12px 48px rgba(0,0,0,0.15);
+
+    --motion: all 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+/* ==========================
+   RESET
+========================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    background: linear-gradient(180deg, #0D47A1 0%, #1565C0 50%, #1976D2 100%);
+    min-height: 100vh;
+    color: var(--text-white);
+    overflow: hidden;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(102,187,106,0.1) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ==========================
+   MAIN CONTAINER
+========================== */
+.main-container {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+}
+
+/* ==========================
+   HEADER
+========================== */
+.header {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    padding: 20px 28px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elevation-2);
+    z-index: 10;
+}
+
+.exercise-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: white;
+    flex: 1;
+}
+
+.rep-counter {
+    font-size: 3.5rem;
+    font-weight: 800;
+    color: var(--secondary);
+    text-shadow: 0 4px 16px rgba(102,187,106,0.6);
+    animation: pulse 0.3s ease;
+    line-height: 1;
+}
+
+.rep-target {
+    font-size: 1.4rem;
+    color: rgba(255,255,255,0.9);
+    margin-left: 8px;
+    font-weight: 600;
+}
+
+/* ==========================
+   VIDEO CONTAINER
+========================== */
+.video-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+}
+
+#input-video {
+    display: none;
+}
+
+#output-canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* เน€เธ›เธฅเธตเนˆเธขเธ™เธˆเธฒเธ  contain เน€เธ›เน‡เธ™ cover เน€เธžเธทเนˆเธญเนƒเธซเน‰เน€เธ•เน‡เธกเธˆเธญเน เธšเธšเธงเธดเธ”เธตเน‚เธญเธ„เธญเธฅ */
+}
+
+/* ==========================
+   LOADING OVERLAY
+========================== */
+.loading-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13,71,161,0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    color: white;
+    font-size: 1.2rem;
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
+.loading-spinner {
+    width: 60px;
+    height: 60px;
+    border: 5px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ==========================
+   SUCCESS FLASH
+========================== */
+.success-flash {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    width: 120px;
+    height: 120px;
+    background: var(--secondary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 60px;
+    color: white;
+    box-shadow: 0 0 40px rgba(102,187,106,0.8);
+    pointer-events: none;
+    z-index: 20;
+}
+
+.success-flash.show {
+    animation: flashSuccess 0.6s ease forwards;
+}
+
+/* เน€เธญเธŸเน€เธŸเธ เธ•เนŒเธˆเธญเน€เธ‚เธตเธขเธงเน€เธ•เน‡เธกเธซเธ™เน‰เธฒเธˆเธญ */
+.video-container::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(102, 187, 106, 0);
+    pointer-events: none;
+    z-index: 5;
+    transition: background 0.3s ease;
+}
+
+.video-container.correct-pose::after {
+    animation: greenFlash 0.8s ease;
+}
+
+@keyframes greenFlash {
+    0% {
+        background: rgba(102, 187, 106, 0);
+    }
+    30% {
+        background: rgba(102, 187, 106, 0.4);
+        box-shadow: inset 0 0 100px rgba(102, 187, 106, 0.6);
+    }
+    100% {
+        background: rgba(102, 187, 106, 0);
+    }
+}
+
+@keyframes flashSuccess {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+/* ==========================
+   STATUS MESSAGE
+========================== */
+.status-message {
+    position: absolute;
+    bottom: 140px;
+    left: 20px;
+    right: 20px;
+    padding: 20px 28px;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(20px);
+    border-radius: 25px;
+    text-align: center;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: white;
+    box-shadow: var(--elevation-2);
+    transition: var(--motion);
+    z-index: 10;
+    border: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.status-message.success {
+    background: rgba(102,187,106,0.85);
+    border: 2px solid rgba(102,187,106,1);
+    box-shadow: 0 8px 32px rgba(102,187,106,0.5);
+}
+
+.status-message.warning {
+    background: rgba(255,167,38,0.85);
+    border: 2px solid rgba(255,167,38,1);
+    box-shadow: 0 8px 32px rgba(255,167,38,0.5);
+}
+
+.status-message.error {
+    background: rgba(229,62,62,0.85);
+    border: 2px solid rgba(229,62,62,1);
+    box-shadow: 0 8px 32px rgba(229,62,62,0.5);
+}
+
+/* ==========================
+   CONTROLS
+========================== */
+.controls {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+}
+
+.btn {
+    flex: 1;
+    padding: 18px 36px;
+    border: none;
+    border-radius: 30px;
+    font-size: 17px;
+    font-weight: 600;
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transition: var(--motion);
+    box-shadow: var(--elevation-2);
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    color: var(--text-main);
+    min-height: 56px;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.btn:active {
+    transform: scale(0.95);
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-3);
+    background: rgba(255, 255, 255, 1);
+}
+
+.btn i {
+    font-size: 20px;
+}
+
+.btn.danger {
+    background: rgba(229, 62, 62, 0.95);
+    backdrop-filter: blur(10px);
+    color: white;
+}
+
+.btn.danger:hover {
+    background: rgba(197, 48, 48, 1);
+}
+
+/* ==========================
+   COMPLETE OVERLAY
+========================== */
+.complete-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(13,71,161,0.98);
+    backdrop-filter: blur(20px);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    animation: fadeIn 0.5s ease;
+}
+
+.complete-overlay.show {
+    display: flex;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.complete-icon {
+    width: 150px;
+    height: 150px;
+    background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    box-shadow: 0 12px 48px rgba(255,215,0,0.5);
+    animation: bounceIn 0.8s ease;
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.2);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+.complete-icon i {
+    font-size: 80px;
+    color: white;
+}
+
+.complete-text {
+    font-size: 3rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 16px;
+    animation: slideUp 0.8s ease 0.2s both;
+}
+
+.complete-subtitle {
+    font-size: 1.5rem;
+    color: rgba(255,255,255,0.9);
+    animation: slideUp 0.8s ease 0.4s both;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* ==========================
+   MOBILE RESPONSIVE
+========================== */
+@media (max-width: 768px) {
+    .header {
+        top: 16px;
+        left: 16px;
+        right: 16px;
+        padding: 16px 20px;
+        flex-wrap: wrap;
+        gap: 8px;
+        justify-content: center;
+    }
+
+    .exercise-title {
+        font-size: 1.3rem;
+        width: 100%;
+        text-align: center;
+        margin-bottom: 4px;
+    }
+
+    .rep-counter {
+        font-size: 3rem;
+    }
+
+    .rep-target {
+        font-size: 1.2rem;
+    }
+
+    .status-message {
+        font-size: 1.15rem;
+        padding: 18px 24px;
+        bottom: 120px;
+        left: 16px;
+        right: 16px;
+    }
+
+    .controls {
+        bottom: 16px;
+        left: 16px;
+        right: 16px;
+        gap: 12px;
+    }
+
+    .btn {
+        padding: 18px 28px;
+        font-size: 16px;
+        min-height: 60px;
+    }
+
+    .complete-icon {
+        width: 120px;
+        height: 120px;
+    }
+
+    .complete-icon i {
+        font-size: 60px;
+    }
+
+    .complete-text {
+        font-size: 2rem;
+    }
+
+    .complete-subtitle {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .header {
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        padding: 14px 18px;
+    }
+
+    .exercise-title {
+        font-size: 1.1rem;
+    }
+
+    .rep-counter {
+        font-size: 2.5rem;
+    }
+
+    .rep-target {
+        font-size: 1rem;
+    }
+
+    .status-message {
+        font-size: 1.05rem;
+        padding: 16px 20px;
+        bottom: 110px;
+        left: 12px;
+        right: 12px;
+    }
+
+    .controls {
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        gap: 10px;
+    }
+
+    .btn {
+        padding: 16px 24px;
+        font-size: 15px;
+        min-height: 56px;
+    }
+
+    .btn i {
+        font-size: 18px;
+    }
+}
+
+/* ==========================
+   LANDSCAPE MODE
+========================== */
+@media (orientation: landscape) and (max-height: 600px) {
+    .header {
+        padding: 8px 16px;
+    }
+
+    .status-message {
+        bottom: 80px;
+        padding: 10px 20px;
+        font-size: 0.95rem;
+    }
+
+    .controls {
+        bottom: 12px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 14px;
+    }
+}

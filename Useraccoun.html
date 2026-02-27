@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สร้างบัญชีใหม่ - ระบบกายภาพบำบัด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="css/stylesUser.css">
+</head>
+<body>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <p>กำลังดำเนินการ...</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Header Section -->
+        <header class="header">
+            <div class="header-bg-animation"></div>
+            <div class="header-content">
+                <h1>สร้างบัญชีใหม่</h1>
+                <p>ระบบกายภาพบำบัดสำหรับผู้ป่วยโรคหลอดเลือดสมอง</p>
+                <div class="header-icon">
+                    <i class="fas fa-user-plus"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Progress Indicator -->
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-step active" data-step="1">
+                    <div class="step-circle">
+                        <span class="step-number">1</span>
+                        <i class="step-check fas fa-check"></i>
+                    </div>
+                    <span class="step-label">ข้อมูลเข้าสู่ระบบ</span>
+                </div>
+                <div class="progress-line"></div>
+                <div class="progress-step" data-step="2">
+                    <div class="step-circle">
+                        <span class="step-number">2</span>
+                        <i class="step-check fas fa-check"></i>
+                    </div>
+                    <span class="step-label">ข้อมูลส่วนตัว</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Form Container -->
+        <main class="form-container">
+            <form id="signupForm" novalidate>
+                <!-- Step 1: Login Information -->
+                <div class="form-step active" id="step1">
+                    <div class="step-header">
+                        <h2><i class="fas fa-lock"></i> ข้อมูลการเข้าสู่ระบบ</h2>
+                        <p>กรุณากรอกข้อมูลสำหรับเข้าสู่ระบบ</p>
+                    </div>
+
+                    <div class="form-fields">
+                        <div class="form-group">
+                            <label for="phone">
+                                <i class="fas fa-phone"></i>
+                                เบอร์โทรศัพท์
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="tel" 
+                                    id="phone" 
+                                    name="phone" 
+                                    placeholder="กรอกเบอร์โทรศัพท์ 10 หลัก"
+                                    maxlength="10"
+                                    pattern="[0-9]{10}"
+                                    required
+                                    autocomplete="tel"
+                                >
+                                
+                            </div>
+                            <small class="help-text">ตัวอย่าง: 0812345678</small>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">
+                                <i class="fas fa-key"></i>
+                                รหัสผ่าน
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper password-wrapper">
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    name="password" 
+                                    placeholder="รหัสผ่านอย่างน้อย 6 ตัวอักษร"
+                                    minlength="6"
+                                    required
+                                    autocomplete="new-password"
+                                >
+                               
+                                <button type="button" class="password-toggle" data-target="password">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="password-strength">
+                                <div class="strength-bar">
+                                    <div class="strength-fill"></div>
+                                </div>
+                                <span class="strength-text">ความแข็งแกร่งของรหัสผ่าน</span>
+                            </div>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">
+                                <i class="fas fa-check-double"></i>
+                                ยืนยันรหัสผ่าน
+                                <span class="required">*</span>
+                            </label>
+                            <div class="input-wrapper password-wrapper">
+                                <input 
+                                    type="password" 
+                                    id="confirmPassword" 
+                                    name="confirmPassword" 
+                                    placeholder="กรอกรหัสผ่านอีกครั้ง"
+                                    required
+                                    autocomplete="new-password"
+                                >
+                                
+                                <button type="button" class="password-toggle" data-target="confirmPassword">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </div>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-primary btn-next" id="nextButton">
+                            <span>ถัดไป</span>
+                            <i class="fas fa-arrow-right"></i>
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="goToLogin()">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>กลับไปหน้าเข้าสู่ระบบ</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Step 2: Personal Information -->
+                <div class="form-step" id="step2">
+                    <div class="step-header">
+                        <h2><i class="fas fa-user"></i> ข้อมูลส่วนตัว</h2>
+                        <p>กรุณากรอกข้อมูลส่วนตัวของคุณ</p>
+                    </div>
+
+                    <div class="form-fields">
+                        <!-- Name Fields -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">
+                                    <i class="fas fa-user"></i>
+                                    ชื่อ
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="firstName" name="firstName" placeholder="ชื่อ" required>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lastName">
+                                    <i class="fas fa-user"></i>
+                                    นามสกุล
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="lastName" name="lastName" placeholder="นามสกุล" required>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <!-- Birth Date Fields -->
+                        <div class="form-row birth-date-row">
+                            <div class="form-group">
+                                <label for="birthDate">
+                                    <i class="fas fa-calendar"></i>
+                                    วันเกิด
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="birthDate" name="birthDate" required>
+                                        <option value="">วัน</option>
+                                    </select>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="birthMonth">
+                                    <i class="fas fa-calendar-alt"></i>
+                                    เดือนเกิด
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="birthMonth" name="birthMonth" required>
+                                        <option value="">เดือน</option>
+                                        <option value="1">มกราคม</option>
+                                        <option value="2">กุมภาพันธ์</option>
+                                        <option value="3">มีนาคม</option>
+                                        <option value="4">เมษายน</option>
+                                        <option value="5">พฤษภาคม</option>
+                                        <option value="6">มิถุนายน</option>
+                                        <option value="7">กรกฎาคม</option>
+                                        <option value="8">สิงหาคม</option>
+                                        <option value="9">กันยายน</option>
+                                        <option value="10">ตุลาคม</option>
+                                        <option value="11">พฤศจิกายน</option>
+                                        <option value="12">ธันวาคม</option>
+                                    </select>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="birthYear">
+                                    <i class="fas fa-calendar-day"></i>
+                                    ปีเกิด (พ.ศ.)
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="birthYear" name="birthYear" required>
+                                        <option value="">ปี</option>
+                                    </select>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <!-- Gender and User Type -->
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gender">
+                                    <i class="fas fa-venus-mars"></i>
+                                    เพศ
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <!-- Gender Select -->
+                                    <select id="gender" name="gender" required>
+                                        <option value="">เลือกเพศ</option>
+                                        <option value="ชาย">ชาย</option>
+                                        <option value="หญิง">หญิง</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="userType">
+                                    <i class="fas fa-user-tag"></i>
+                                    ประเภทผู้ใช้
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="userType" name="userType" required>
+                                        <option value="">เลือกประเภทผู้ใช้</option>
+                                        <option value="ผู้ป่วย">ผู้ป่วย</option>
+                                        <option value="นักกายภาพบำบัด">นักกายภาพบำบัด</option>
+                                        <option value="ผู้ดูแล">ผู้ดูแล</option>
+                                    </select>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <!-- Conditional Fields for Patient -->
+                        <div class="conditional-fields patient-fields" id="patientFields" style="display: none;">
+                            <h3><i class="fas fa-notes-medical"></i> ข้อมูลเพิ่มเติมสำหรับผู้ป่วย</h3>
+                            
+                            <!-- Physical Information -->
+                            <h4><i class="fas fa-weight"></i> ข้อมูลร่างกาย</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="weight">
+                                        <i class="fas fa-weight"></i>
+                                        น้ำหนัก (กิโลกรัม)
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input 
+                                            type="number" 
+                                            id="weight" 
+                                            name="weight" 
+                                            placeholder="น้ำหนักของคุณ"
+                                            min="20"
+                                            max="300"
+                                            step="0.1"
+                                        >
+                                        
+                                    </div>
+                                    <small class="help-text">ตัวอย่าง: 65.5</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="height">
+                                        <i class="fas fa-ruler-vertical"></i>
+                                        ส่วนสูง (เซนติเมตร)
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input 
+                                            type="number" 
+                                            id="height" 
+                                            name="height" 
+                                            placeholder="ส่วนสูงของคุณ"
+                                            min="100"
+                                            max="250"
+                                            step="0.1"
+                                        >
+                                        
+                                    </div>
+                                    <small class="help-text">ตัวอย่าง: 170.5</small>
+                                </div>
+                            </div>
+
+                            <!-- BMI Display (calculated automatically) -->
+                            <div class="bmi-display" id="bmiDisplay" style="display: none;">
+                                <div class="bmi-card">
+                                    <div class="bmi-value">
+                                        <span class="bmi-number" id="bmiNumber">-</span>
+                                        <span class="bmi-unit">kg/m²</span>
+                                    </div>
+                                    <div class="bmi-category" id="bmiCategory">BMI</div>
+                                    <div class="bmi-status" id="bmiStatus"></div>
+                                </div>
+                            </div>
+
+                            <!-- Medical Information -->
+                            <h4><i class="fas fa-medical"></i> ข้อมูลการบาดเจ็บ</h4>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="injuredSide">
+                                        <i class="fas fa-hand-paper"></i>
+                                        ด้านที่ได้รับผลกระทบ
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <select id="injuredSide" name="injuredSide">
+                                            <option value="">เลือกด้าน</option>
+                                            <option value="ซ้าย">ด้านซ้าย</option>
+                                            <option value="ขวา">ด้านขวา</option>
+                                            <option value="ทั้งสองข้าง">ทั้งสองด้าน</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="injuredPart">
+                                        <i class="fas fa-body"></i>
+                                        ส่วนที่ได้รับผลกระทบ
+                                    </label>
+                                    <div class="input-wrapper">
+                                       <select id="injuredPart" name="injuredPart">
+                                            <option value="">เลือกส่วนที่บาดเจ็บ</option>
+                                            <option value="ขา">ขา</option>
+                                            <option value="แขน">แขน</option>
+                                            <option value="ลำตัว">ลำตัว</option>
+                                            <option value="หัว">หัว</option>
+                                            <option value="อื่นๆ">อื่นๆ</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h4><i class="fas fa-phone-alt"></i> ข้อมูลผู้ติดต่อฉุกเฉิน</h4>
+                            <div class="form-group">
+                                <label for="emergencyContactName">
+                                    <i class="fas fa-user-friends"></i>
+                                    ชื่อผู้ติดต่อฉุกเฉิน
+                                </label>
+                                <div class="input-wrapper">
+                                    <input type="text" id="emergencyContactName" name="emergencyContactName" placeholder="ชื่อ-นามสกุลผู้ติดต่อ">
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="emergencyContactPhone">
+                                        <i class="fas fa-phone"></i>
+                                        เบอร์โทรฉุกเฉิน
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="tel" id="emergencyContactPhone" name="emergencyContactPhone" placeholder="เบอร์โทรศัพท์" maxlength="10">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="emergencyContactRelation">
+                                        <i class="fas fa-heart"></i>
+                                        ความสัมพันธ์
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="emergencyContactRelation" name="emergencyContactRelation" placeholder="เช่น บิดา มารดา">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Conditional Fields for Physiotherapist -->
+                        <div class="conditional-fields therapist-fields" id="therapistFields" style="display: none;">
+                            <h3><i class="fas fa-stethoscope"></i> ข้อมูลเพิ่มเติมสำหรับนักกายภาพบำบัด</h3>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="licenseNumber">
+                                        <i class="fas fa-id-card"></i>
+                                        เลขที่ใบประกอบวิชาชีพ
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="licenseNumber" name="licenseNumber" placeholder="เลขที่ใบประกอบวิชาชีพ">
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="specialization">
+                                        <i class="fas fa-award"></i>
+                                        ความเชี่ยวชาญ
+                                    </label>
+                                    <div class="input-wrapper">
+                                        <input type="text" id="specialization" name="specialization" placeholder="เช่น กายภาพบำบัดระบบประสาท">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-submit" id="submitButton">
+                            <i class="fas fa-check"></i>
+                            <span>ลงทะเบียน</span>
+                        </button>
+                        <button type="button" class="btn btn-outline btn-back" id="backButton">
+                            <i class="fas fa-arrow-left"></i>
+                            <span>ย้อนกลับ</span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </main>
+
+        <!-- Connection Status -->
+        <div class="connection-status" id="connectionStatus">
+            <div class="status-content">
+                <div class="status-icon">
+                    <i class="fas fa-wifi"></i>
+                </div>
+                <span class="status-text">ตรวจสอบการเชื่อมต่อ...</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-icon success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h3>สมัครสมาชิกสำเร็จ!</h3>
+                <p>บัญชีของคุณถูกสร้างเรียบร้อยแล้ว<br>คุณสามารถเข้าสู่ระบบได้ทันที</p>
+                <div class="modal-actions">
+                    <button class="btn btn-primary" onclick="goToLogin()">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>ไปที่หน้าเข้าสู่ระบบ</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal-overlay" id="errorModal" style="display: none;">
+        <div class="modal">
+            <div class="modal-content">
+                <div class="modal-icon error">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>เกิดข้อผิดพลาด</h3>
+                <p id="errorMessage">ไม่สามารถดำเนินการได้ กรุณาลองใหม่อีกครั้ง</p>
+                <div class="modal-actions">
+                    <button class="btn btn-outline" onclick="closeErrorModal()">
+                        <span>ปิด</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <!-- ⚠️ ต้องโหลด api-config.js ก่อน! -->
+    <script src="JS/api-config.js"></script>
+    <script src="JS/useraccoun.js"></script>
+</body>
+</html>

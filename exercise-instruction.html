@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คำแนะนำท่าทาง - ระบบกายภาพบำบัด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/instruction-styles.css">
+</head>
+<body>
+    <!-- ปุ่มย้อนกลับ -->
+    <button class="back-button" onclick="goBack()">
+        <i class="fas fa-arrow-left"></i>
+        ย้อนกลับ
+    </button>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="exercise-badge">
+                <i class="fas fa-info-circle"></i>
+            </div>
+            <h1 id="exercise-name">กำลังโหลด...</h1>
+            <p class="subtitle">ศึกษาท่าทางก่อนเริ่มฝึก</p>
+        </div>
+
+        <!-- GIF Demonstration -->
+        <div class="demo-section">
+            <div class="demo-card">
+                <div class="demo-image-container">
+                    <img id="exercise-gif" src="" alt="สาธิตท่าทาง" class="demo-gif">
+                    <div class="loading-demo" id="loading-demo">
+                        <div class="spinner"></div>
+                        <p>กำลังโหลดตัวอย่าง...</p>
+                    </div>
+                </div>
+                <div class="demo-label">
+                    <i class="fas fa-play-circle"></i>
+                    ตัวอย่างการเคลื่อนไหว
+                </div>
+            </div>
+        </div>
+
+        <!-- Instructions Section -->
+        <div class="instructions-section">
+            <div class="section-header">
+                <i class="fas fa-clipboard-list"></i>
+                <h2>ขั้นตอนการฝึก</h2>
+                <button class="audio-button" id="play-audio-btn" onclick="speakInstructions()">
+                    <i class="fas fa-volume-up"></i>
+                    ฟังคำแนะนำ
+                </button>
+            </div>
+
+            <div class="instructions-list" id="instructions-list">
+                <!-- จะถูกเติมด้วย JavaScript -->
+            </div>
+        </div>
+
+        <!-- Safety Tips -->
+        <div class="safety-section">
+            <div class="section-header warning">
+                <i class="fas fa-exclamation-triangle"></i>
+                <h2>ข้อควรระวัง</h2>
+            </div>
+            <div class="safety-tips" id="safety-tips">
+                <!-- จะถูกเติมด้วย JavaScript -->
+            </div>
+        </div>
+
+        <!-- Benefits Section -->
+        <div class="benefits-section">
+            <div class="section-header success">
+                <i class="fas fa-heart-pulse"></i>
+                <h2>ประโยชน์ของการฝึก</h2>
+            </div>
+            <div class="benefits-grid" id="benefits-grid">
+                <!-- จะถูกเติมด้วย JavaScript -->
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <button class="btn btn-secondary" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i>
+                เลือกท่าใหม่
+            </button>
+            <button class="btn btn-primary" onclick="startExercise()">
+                <i class="fas fa-play"></i>
+                เริ่มฝึกเลย
+            </button>
+        </div>
+    </div>
+
+    <!-- Audio Control Panel (Fixed Bottom) -->
+    <div class="audio-control-panel" id="audio-panel" style="display: none;">
+        <div class="audio-info">
+            <i class="fas fa-volume-up audio-icon"></i>
+            <span id="audio-status">กำลังอ่านคำแนะนำ...</span>
+        </div>
+        <button class="audio-stop-btn" onclick="stopSpeaking()">
+            <i class="fas fa-stop"></i>
+            หยุด
+        </button>
+    </div>
+
+    <script src="JS/exercise-instruction.js"></script>
+</body>
+</html>

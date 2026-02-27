@@ -1,0 +1,618 @@
+/* ==========================
+   SMARTCARE MEDICAL THEME - INSTRUCTION PAGE
+========================== */
+:root {
+    --primary: #1E88E5;
+    --primary-dark: #1565C0;
+    --primary-light: #42A5F5;
+    --secondary: #66BB6A;
+    --accent-green: #81C784;
+    --accent-blue: #64B5F6;
+    --accent-teal: #4DB6AC;
+    --success: #66BB6A;
+    --warning: #FFA726;
+    --danger: #E53E3E;
+
+    --surface: #ffffff;
+    --card-bg: rgba(255,255,255,0.98);
+
+    --text-main: #0F172A;
+    --text-sub: #64748B;
+    --text-white: #ffffff;
+    --text-white-soft: rgba(255,255,255,0.92);
+
+    --radius-xl: 40px;
+    --radius-lg: 28px;
+    --radius-md: 20px;
+    --radius-sm: 16px;
+
+    --elevation-1: 0 4px 16px rgba(0,0,0,0.08);
+    --elevation-2: 0 8px 32px rgba(0,0,0,0.12);
+    --elevation-3: 0 12px 48px rgba(0,0,0,0.15);
+
+    --motion: all 0.35s cubic-bezier(.4,0,.2,1);
+}
+
+/* ==========================
+   RESET & BASE
+========================== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Kanit','Prompt',sans-serif;
+    background: linear-gradient(180deg, #1E88E5 0%, #42A5F5 50%, #81C784 100%);
+    min-height: 100vh;
+    color: var(--text-main);
+    padding: 24px 16px 100px;
+    overscroll-behavior: none;
+    position: relative;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: 
+        radial-gradient(circle at 20% 30%, rgba(255,255,255,0.12) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(102,187,106,0.2) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ==========================
+   BACK BUTTON
+========================== */
+.back-button {
+    position: fixed;
+    top: 24px;
+    left: 24px;
+    background: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 30px;
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'Kanit', sans-serif;
+    color: var(--primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: var(--elevation-2);
+    z-index: 100;
+    transition: var(--motion);
+}
+
+.back-button:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--elevation-3);
+}
+
+.back-button i {
+    font-size: 16px;
+}
+
+/* ==========================
+   CONTAINER
+========================== */
+.container {
+    max-width: 900px;
+    margin: 60px auto 0;
+    position: relative;
+    z-index: 1;
+}
+
+/* ==========================
+   HEADER
+========================== */
+.header {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.exercise-badge {
+    width: 80px;
+    height: 80px;
+    background: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: var(--elevation-2);
+    font-size: 36px;
+    color: var(--primary);
+}
+
+.header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: var(--text-white-soft);
+}
+
+/* ==========================
+   DEMO SECTION
+========================== */
+.demo-section {
+    margin-bottom: 32px;
+}
+
+.demo-card {
+    background: white;
+    border-radius: var(--radius-xl);
+    overflow: hidden;
+    box-shadow: var(--elevation-3);
+}
+
+.demo-image-container {
+    position: relative;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio */
+    background: linear-gradient(135deg, #E3F2FD 0%, #BBDEFB 100%);
+}
+
+.demo-gif {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.loading-demo {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255,255,255,0.9);
+}
+
+.loading-demo.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(30,136,229,0.3);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-demo p {
+    margin-top: 16px;
+    color: var(--text-sub);
+    font-size: 15px;
+}
+
+.demo-label {
+    padding: 16px 24px;
+    background: linear-gradient(135deg, #1565C0 0%, #1E88E5 100%);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.demo-label i {
+    font-size: 20px;
+}
+
+/* ==========================
+   SECTION HEADERS
+========================== */
+.section-header {
+    background: white;
+    padding: 20px 24px;
+    border-radius: var(--radius-lg);
+    margin-bottom: 16px;
+    box-shadow: var(--elevation-2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-header i {
+    font-size: 28px;
+    color: var(--primary);
+}
+
+.section-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--text-main);
+    flex: 1;
+}
+
+.section-header.warning i {
+    color: var(--warning);
+}
+
+.section-header.success i {
+    color: var(--success);
+}
+
+/* Audio Button */
+.audio-button {
+    background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%);
+    border: none;
+    padding: 10px 20px;
+    border-radius: 30px;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: var(--motion);
+}
+
+.audio-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102,187,106,0.4);
+}
+
+.audio-button i {
+    font-size: 16px;
+}
+
+/* ==========================
+   INSTRUCTIONS LIST
+========================== */
+.instructions-section {
+    margin-bottom: 32px;
+}
+
+.instructions-list {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--elevation-2);
+}
+
+.instruction-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px 0;
+    border-bottom: 1px solid #E2E8F0;
+}
+
+.instruction-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.instruction-item:first-child {
+    padding-top: 0;
+}
+
+.instruction-number {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #1E88E5 0%, #42A5F5 100%);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.instruction-content {
+    flex: 1;
+}
+
+.instruction-content p {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--text-main);
+}
+
+/* ==========================
+   SAFETY TIPS
+========================== */
+.safety-section {
+    margin-bottom: 32px;
+}
+
+.safety-tips {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 24px;
+    box-shadow: var(--elevation-2);
+}
+
+.safety-item {
+    display: flex;
+    gap: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    background: #FFF3E0;
+    border-radius: var(--radius-sm);
+    border-left: 4px solid var(--warning);
+}
+
+.safety-item:last-child {
+    margin-bottom: 0;
+}
+
+.safety-item i {
+    color: var(--warning);
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.safety-item p {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--text-main);
+}
+
+/* ==========================
+   BENEFITS SECTION
+========================== */
+.benefits-section {
+    margin-bottom: 32px;
+}
+
+.benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.benefit-card {
+    background: white;
+    padding: 24px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--elevation-2);
+    text-align: center;
+    transition: var(--motion);
+}
+
+.benefit-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--elevation-3);
+}
+
+.benefit-icon {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%);
+    color: var(--success);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 28px;
+}
+
+.benefit-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.benefit-card p {
+    font-size: 14px;
+    color: var(--text-sub);
+    line-height: 1.5;
+}
+
+/* ==========================
+   ACTION BUTTONS
+========================== */
+.action-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 40px;
+}
+
+.btn {
+    flex: 1;
+    padding: 16px 32px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: 600;
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: var(--motion);
+    box-shadow: var(--elevation-2);
+}
+
+.btn i {
+    font-size: 18px;
+}
+
+.btn-secondary {
+    background: white;
+    color: var(--text-main);
+}
+
+.btn-secondary:hover {
+    background: #F8F9FA;
+    transform: translateY(-2px);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #1565C0 0%, #1E88E5 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px rgba(30,136,229,0.4);
+}
+
+/* ==========================
+   AUDIO CONTROL PANEL
+========================== */
+.audio-control-panel {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #66BB6A 0%, #81C784 100%);
+    padding: 16px 32px;
+    border-radius: 50px;
+    box-shadow: var(--elevation-3);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 100;
+    animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.audio-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: white;
+}
+
+.audio-icon {
+    font-size: 20px;
+    animation: pulse 1.5s ease infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+#audio-status {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.audio-stop-btn {
+    background: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 30px;
+    color: var(--success);
+    font-size: 14px;
+    font-weight: 600;
+    font-family: 'Kanit', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--motion);
+}
+
+.audio-stop-btn:hover {
+    background: #F5F5F5;
+}
+
+/* ==========================
+   MOBILE RESPONSIVE
+========================== */
+@media (max-width: 768px) {
+    body {
+        padding: 16px 12px 100px;
+    }
+
+    .container {
+        margin-top: 50px;
+    }
+
+    .back-button {
+        top: 16px;
+        left: 16px;
+        padding: 10px 20px;
+        font-size: 14px;
+    }
+
+    .header h1 {
+        font-size: 1.6rem;
+    }
+
+    .exercise-badge {
+        width: 70px;
+        height: 70px;
+        font-size: 32px;
+    }
+
+    .section-header {
+        padding: 16px 20px;
+        flex-wrap: wrap;
+    }
+
+    .section-header h2 {
+        font-size: 1.2rem;
+        width: 100%;
+        margin-top: 8px;
+    }
+
+    .audio-button {
+        width: 100%;
+        margin-top: 12px;
+        justify-content: center;
+    }
+
+    .benefits-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .audio-control-panel {
+        left: 16px;
+        right: 16px;
+        transform: translateX(0);
+        width: calc(100% - 32px);
+        padding: 14px 20px;
+    }
+}

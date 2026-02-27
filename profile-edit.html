@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ข้อมูลส่วนตัว - ระบบกายภาพบำบัด</title>
+    
+    <!-- External Dependencies -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/profiledoc-edit.css">
+</head>
+<body>
+    <!-- Header Section -->
+    <header class="profile-header">
+        <div class="header-container">
+            <div class="header-left">
+                <button class="back-button" onclick="goBack()">
+                    <i class="fas fa-arrow-left"></i>
+                    <span>กลับ</span>
+                </button>
+                <div class="header-title">
+                    <h1><i class="fas fa-user-edit"></i> ข้อมูลส่วนตัว</h1>
+                    <p>แก้ไขและจัดการข้อมูลส่วนตัวของคุณ</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="user-info">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="user-details">
+                        <span class="user-name" id="currentUserName">กำลังโหลด...</span>
+                        <span class="user-role" id="currentUserRole">ผู้ป่วย</span>
+                    </div>
+                </div>
+                <button class="logout-button" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>ออกจากระบบ</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <!-- Profile Card -->
+            <div class="profile-card">
+                <!-- Profile Form -->
+                <form id="profileForm" class="profile-form">
+                    <!-- Basic Information Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-user"></i> ข้อมูลพื้นฐาน</h2>
+                            <p>ข้อมูลส่วนตัวของคุณ</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="firstName">
+                                    <i class="fas fa-user"></i>
+                                    ชื่อ
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="firstName" 
+                                        name="firstName" 
+                                        placeholder="ชื่อ" 
+                                        required
+                                        autocomplete="given-name"
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="lastName">
+                                    <i class="fas fa-user"></i>
+                                    นามสกุล
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="lastName" 
+                                        name="lastName" 
+                                        placeholder="นามสกุล" 
+                                        required
+                                        autocomplete="family-name"
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-user"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row birth-date-row">
+                            <div class="form-group">
+                                <label for="birthDate">
+                                    <i class="fas fa-calendar"></i>
+                                    วันเกิด
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="birthDate" name="birthDate" required>
+                                        <option value="">วัน</option>
+                                    </select>
+                                    <div class="input-icon">
+                                        <i class="fas fa-calendar-day"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="birthMonth">
+                                    <i class="fas fa-calendar"></i>
+                                    เดือน
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="birthMonth" name="birthMonth" required>
+                                        <option value="">เดือน</option>
+                                    </select>
+                                    <div class="input-icon">
+                                        <i class="fas fa-calendar-alt"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="birthYear">
+                                    <i class="fas fa-calendar"></i>
+                                    ปี (พ.ศ.)
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="birthYear" name="birthYear" required>
+                                        <option value="">ปี</option>
+                                    </select>
+                                    <div class="input-icon">
+                                        <i class="fas fa-calendar"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="gender">
+                                    <i class="fas fa-venus-mars"></i>
+                                    เพศ
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <select id="gender" name="gender" required>
+                                        <option value="">เลือกเพศ</option>
+                                        <option value="ชาย">ชาย</option>
+                                        <option value="หญิง">หญิง</option>
+                                        <option value="อื่นๆ">อื่นๆ</option>
+                                    </select>
+                                    <div class="input-icon">
+                                        <i class="fas fa-venus-mars"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="email">
+                                    <i class="fas fa-envelope"></i>
+                                    โทรศัพท์
+                                    <span class="required">*</span>
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="email" 
+                                        id="email" 
+                                        name="email" 
+                                        placeholder="your@email.com" 
+                                        required
+                                        autocomplete="email"
+                                        readonly
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                </div>
+                                <small class="help-text">อีเมลไม่สามารถแก้ไขได้</small>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Physical Information Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-weight"></i> ข้อมูลทางกาย</h2>
+                            <p>ข้อมูลสุขภาพและร่างกาย</p>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="weight">
+                                    <i class="fas fa-weight"></i>
+                                    น้ำหนัก (กิโลกรัม)
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="number" 
+                                        id="weight" 
+                                        name="weight" 
+                                        placeholder="65" 
+                                        min="20" 
+                                        max="200" 
+                                        step="0.1"
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-weight"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="height">
+                                    <i class="fas fa-ruler-vertical"></i>
+                                    ส่วนสูง (เซนติเมตร)
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="number" 
+                                        id="height" 
+                                        name="height" 
+                                        placeholder="170" 
+                                        min="100" 
+                                        max="250"
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-ruler-vertical"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+
+                        <!-- BMI Display -->
+                        <div class="bmi-display" id="bmiDisplay" style="display: none;">
+                            <div class="bmi-card">
+                                <div class="bmi-value">
+                                    <span class="bmi-number" id="bmiValue">0.0</span>
+                                    <span class="bmi-unit">BMI</span>
+                                </div>
+                                <div class="bmi-category" id="bmiCategory">ปกติ</div>
+                                <div class="bmi-status" id="bmiStatus">อยู่ในเกณฑ์ปกติ</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Medical Information Section -->
+                    <div class="form-section" id="medicalSection">
+                        <div class="section-header">
+                            <h2><i class="fas fa-notes-medical"></i> ข้อมูลทางการแพทย์</h2>
+                            <p>ข้อมูลการรักษาและอาการ</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="injuredSide">
+                                <i class="fas fa-user-injured"></i>
+                                ด้านที่ได้รับผลกระทบ
+                            </label>
+                            <div class="input-wrapper">
+                                <select id="injuredSide" name="injuredSide">
+                                    <option value="">เลือกด้าน</option>
+                                    <option value="ซ้าย">ด้านซ้าย</option>
+                                    <option value="ขวา">ด้านขวา</option>
+                                    <option value="ทั้งสองข้าง">ทั้งสองด้าน</option>
+                                </select>
+                                <div class="input-icon">
+                                    <i class="fas fa-user-injured"></i>
+                                </div>
+                            </div>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <!-- Injured Part Select - เปลี่ยนจาก input เป็น select -->
+                        <div class="form-group">
+                            <label for="injuredPart">
+                                <i class="fas fa-band-aid"></i>
+                                ส่วนที่ได้รับผลกระทบ
+                            </label>
+                            <div class="input-wrapper">
+                                <select id="injuredPart" name="injuredPart">
+                                    <option value="">เลือกส่วนที่บาดเจ็บ</option>
+                                    <option value="ขา">ขา</option>
+                                    <option value="แขน">แขน</option>
+                                    <option value="ลำตัว">ลำตัว</option>
+                                    <option value="หัว">หัว</option>
+                                    <option value="อื่นๆ">อื่นๆ</option>
+                                </select>
+                                <div class="input-icon">
+                                    <i class="fas fa-band-aid"></i>
+                                </div>
+                            </div>
+                            <div class="error-message"></div>
+                        </div>
+                    </div>
+
+                    <!-- Emergency Contact Section -->
+                    <div class="form-section">
+                        <div class="section-header">
+                            <h2><i class="fas fa-phone-alt"></i> ผู้ติดต่อฉุกเฉิน</h2>
+                            <p>ข้อมูลผู้ติดต่อในกรณีฉุกเฉิน</p>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="emergencyContactName">
+                                <i class="fas fa-user-friends"></i>
+                                ชื่อผู้ติดต่อฉุกเฉิน
+                            </label>
+                            <div class="input-wrapper">
+                                <input 
+                                    type="text" 
+                                    id="emergencyContactName" 
+                                    name="emergencyContactName" 
+                                    placeholder="ชื่อ-นามสกุลผู้ติดต่อ"
+                                >
+                                <div class="input-icon">
+                                    <i class="fas fa-user-friends"></i>
+                                </div>
+                            </div>
+                            <div class="error-message"></div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="emergencyContactPhone">
+                                    <i class="fas fa-phone"></i>
+                                    เบอร์โทรฉุกเฉิน
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="tel" 
+                                        id="emergencyContactPhone" 
+                                        name="emergencyContactPhone" 
+                                        placeholder="เบอร์โทรศัพท์" 
+                                        maxlength="10"
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-phone"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="emergencyContactRelation">
+                                    <i class="fas fa-heart"></i>
+                                    ความสัมพันธ์
+                                </label>
+                                <div class="input-wrapper">
+                                    <input 
+                                        type="text" 
+                                        id="emergencyContactRelation" 
+                                        name="emergencyContactRelation" 
+                                        placeholder="เช่น บิดา มารดา สามี ภรรยา"
+                                    >
+                                    <div class="input-icon">
+                                        <i class="fas fa-heart"></i>
+                                    </div>
+                                </div>
+                                <div class="error-message"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Form Actions -->
+                    <div class="form-actions">
+                        <button type="button" class="btn btn-outline" onclick="resetForm()">
+                            <i class="fas fa-undo"></i>
+                            <span>รีเซ็ต</span>
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="saveButton">
+                            <i class="fas fa-save"></i>
+                            <span>บันทึกข้อมูล</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>กำลังบันทึกข้อมูล...</p>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <div class="toast-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="toast-message">
+                บันทึกข้อมูลเรียบร้อยแล้ว
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="JS/profile-edit.js"></script>
+</body>
+</html>

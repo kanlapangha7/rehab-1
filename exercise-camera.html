@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>การตรวจจับท่าทาง - ระบบกายภาพบำบัด</title>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/exercise-camera.css">
+    
+    <!-- MediaPipe Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1 class="exercise-title" id="exercise-title">กำลังโหลด...</h1>
+            <div class="rep-counter" id="rep-counter">0</div>
+            <div class="rep-target">/ <span id="target-reps">10</span> ครั้ง</div>
+        </div>
+
+        <!-- Video Container -->
+        <div class="video-container">
+            <video id="input-video" autoplay muted playsinline></video>
+            <canvas id="output-canvas"></canvas>
+            
+            <!-- Loading Overlay -->
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-spinner"></div>
+                <div>กำลังเตรียมระบบ...</div>
+            </div>
+            
+            <!-- Success Flash -->
+            <div class="success-flash" id="success-flash">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+
+        <!-- Status Message -->
+        <div class="status-message" id="status-message">
+            เตรียมตัวในท่าเริ่มต้น...
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+            <button class="btn" onclick="goBack()">
+                <i class="fas fa-arrow-left"></i> กลับ
+            </button>
+            <button class="btn danger" onclick="endExercise()">
+                <i class="fas fa-stop"></i> จบการฝึก
+            </button>
+        </div>
+    </div>
+
+    <!-- Complete Overlay -->
+    <div class="complete-overlay" id="complete-overlay">
+        <div class="complete-icon">
+            <i class="fas fa-trophy"></i>
+        </div>
+        <div class="complete-text">สำเร็จแล้ว!</div>
+        <div class="complete-subtitle">คุณทำครบ 10 ครั้งแล้ว</div>
+    </div>
+
+    <!-- ⚠️ โหลดไฟล์ตามลำดับที่ถูกต้อง -->
+    <!-- 1. Config ต้องมาก่อน -->
+    <script src="JS/config.js"></script>
+    
+    <!-- 2. Movement Arrows (ระบบลูกศรแนะนำ) -->
+    <script src="JS/movement-arrows.js"></script>
+    
+    <!-- 3. Canvas Renderer -->
+    <script src="JS/canvas-renderer.js"></script>
+    
+    <!-- 4. Potex (Main Logic) โหลดสุดท้าย -->
+    <script src="JS/potex.js"></script>
+</body>
+</html>
