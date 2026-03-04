@@ -66,7 +66,7 @@ const EXERCISE_CONFIG = {
     'leg-extension': {
         name: 'ท่าเหยียดเข่าตรง',
         targetAngle: { min: 160, max: 180 },
-        restAngle: { min: 60, max: 120 },  // ✅ ขยายช่วงพัก
+        restAngle: { min: 50, max: 150 },  // ขยายช่วงพักให้ครอบคลุมมุมธรรมชาติ
         landmarks: {
             hip: [23, 24],
             knee: [25, 26],
@@ -451,9 +451,10 @@ class ImprovedPoseDetector {
             const headOffsetX = nose.x - centerX;
             
             // เก็บทิศทางการเอียง
-            // headOffsetX < 0 = เอียงซ้าย (ในกล้องหน้า)
-            // headOffsetX > 0 = เอียงขวา
-            this.exerciseState.swayDirection = headOffsetX < 0 ? 'left' : 'right';
+            // กล้องหน้า (selfie) mirror อัตโนมัติ:
+            // headOffsetX < 0 = จมูกอยู่ซ้ายบนจอ = ผู้ใช้เอียงไปทาง "ขวา" จริง
+            // headOffsetX > 0 = จมูกอยู่ขวาบนจอ = ผู้ใช้เอียงไปทาง "ซ้าย" จริง
+            this.exerciseState.swayDirection = headOffsetX < 0 ? 'right' : 'left';
             
             // คำนวณระยะห่างเป็น pixels (สำหรับเปรียบเทียบกับ targetDistance)
             const distance = Math.abs(headOffsetX) * 1000; // คูณ 1000 เพื่อแปลงเป็น pixels โดยประมาณ
@@ -480,7 +481,8 @@ class ImprovedPoseDetector {
         const deltaY = shoulderCenterY - hipCenterY;
         const angleDeg = Math.abs(Math.atan2(deltaX, deltaY) * (180 / Math.PI));
 
-        this.exerciseState.swayDirection = deltaX < 0 ? 'left' : 'right';
+        // selfie mirror: deltaX < 0 บนจอ = ผู้ใช้เอียงขวาจริง
+        this.exerciseState.swayDirection = deltaX < 0 ? 'right' : 'left';
 
         if (this.config.alternating) {
             const correctDirection = this.exerciseState.swayDirection === this.exerciseState.currentSide;
@@ -579,7 +581,7 @@ detectMovement() {
         this.exerciseState.consecutiveGoodFrames++;
 
         if (!this.exerciseState.isHolding) {
-            speakCooldown(this, "enterTarget", "ดีมาก คงท่าไว้", 1800);
+                speakCooldown(this, "enterTarget", this._getEnterTargetText(), 1800);
             this.exerciseState.isHolding = true;
             this.exerciseState.holdStartTime = Date.now();
             this.exerciseState.phase = "holding";
@@ -607,12 +609,13 @@ detectMovement() {
                 if (this.config.alternating) {
                     this.incrementRep();
 
+                    // พูดข้างที่จะทำ "ต่อไป" (ก่อนเปลี่ยน currentSide)
                     if (this.exerciseState.currentSide === "left") {
+                        speakCooldown(this, "switchSide", this._getSwitchSideText("right"), 1200);
                         this.exerciseState.currentSide = "right";
-                        speakCooldown(this, "switchSide", "สลับข้างขวา", 1200);
                     } else {
+                        speakCooldown(this, "switchSide", this._getSwitchSideText("left"), 1200);
                         this.exerciseState.currentSide = "left";
-                        speakCooldown(this, "switchSide", "สลับข้างซ้าย", 1200);
                     }
                 } else {
                     this.incrementRep();
@@ -628,9 +631,9 @@ detectMovement() {
     } else {
         if (!inRestRange) {
             if (angle < target.min - 10) {
-                speakCooldown(this, "tooLow", "ยกให้สูงขึ้น", 1600);
+                speakCooldown(this, "tooLow", this._getTooLowText(), 1600);
             } else if (angle > target.max + 10) {
-                speakCooldown(this, "tooHigh", "ลดลงนิดนึง", 1600);
+                speakCooldown(this, "tooHigh", this._getTooHighText(), 1600);
             }
         }
 
@@ -642,18 +645,59 @@ detectMovement() {
             this.exerciseState.lastCount = 0;  // ✅ เพิ่ม
         }
 
-        if (inRestRange && this.exerciseState.repCounted) {
+        // leg-extension: รีเซ็ตทันทีที่ออกจากท่า ไม่ต้องรอ restRange
+        // (เพราะมุมขณะลดขาลงมักไม่ผ่าน restRange พอดี)
+        if (this.exerciseState.repCounted) {
             this.exerciseState.repCounted = false;
             this.exerciseState.consecutiveGoodFrames = 0;
             this.exerciseState.phase = "rest";
-            this.exerciseState.lastCount = 0;  // ✅ เพิ่ม (รีเซ็ตอีกครั้งตอนกลับท่าพัก)
-            speakCooldown(this, "backToRest", "เตรียมพร้อม", 2000);
-
+            this.exerciseState.lastCount = 0;
+            if (inRestRange) {
+                speakCooldown(this, "backToRest", "เตรียมพร้อม", 2000);
+            }
         } else if (!inRestRange) {
             this.exerciseState.phase = "moving";
         }
     }
 }
+    // ── helper: ข้อความเสียงตามประเภทท่า ─────────────────
+    _getEnterTargetText() {
+        switch (this.currentExercise) {
+            case 'trunk-sway':  return 'ดีมาก คงการโยกไว้';
+            case 'neck-tilt':   return 'ดีมาก คงการเอียงไว้';
+            case 'leg-extension': return 'ดีมาก เหยียดค้างไว้';
+            default:            return 'ดีมาก คงท่าไว้';
+        }
+    }
+
+    _getTooLowText() {
+        switch (this.currentExercise) {
+            case 'trunk-sway':  return 'โยกให้มากขึ้น';
+            case 'neck-tilt':   return 'เอียงให้มากขึ้น';
+            case 'leg-extension': return 'เหยียดเข่าให้ตรงขึ้น';
+            default:            return 'ยกให้สูงขึ้น';
+        }
+    }
+
+    _getTooHighText() {
+        switch (this.currentExercise) {
+            case 'trunk-sway':  return 'โยกพอดีแล้ว';
+            case 'neck-tilt':   return 'เอียงพอดีแล้ว';
+            case 'leg-extension': return 'ลดลงนิดนึง';
+            default:            return 'ลดลงนิดนึง';
+        }
+    }
+
+    _getSwitchSideText(nextSide) {
+        const sideWord = nextSide === 'left' ? 'ซ้าย' : 'ขวา';
+        switch (this.currentExercise) {
+            case 'trunk-sway':    return `สลับ โยก${sideWord}`;
+            case 'neck-tilt':     return `สลับ เอียง${sideWord}`;
+            case 'leg-extension': return `สลับ ขา${sideWord}`;
+            default:              return `สลับ แขน${sideWord}`;
+        }
+    }
+
     getStatusMessage() {
         if (!this.config) return '';
         
@@ -661,10 +705,21 @@ detectMovement() {
         const angle = state.smoothedAngle;
         const target = this.config.targetAngle;
         
-        // แสดงข้างที่กำลังทำสำหรับท่าที่ต้องสลับ
-        const sideText = this.config.alternating ? 
-            (state.currentSide === 'left' ? ' (แขนซ้าย)' : ' (แขนขวา)') : '';
-        
+        // แสดงข้างที่กำลังทำ ให้ตรงกับประเภทท่า
+        let sideText = '';
+        if (this.config.alternating) {
+            const side = state.currentSide === 'left' ? 'ซ้าย' : 'ขวา';
+            if (this.currentExercise === 'arm-raise-forward') {
+                sideText = ` (แขน${side})`;
+            } else if (this.currentExercise === 'leg-extension') {
+                sideText = ` (ขา${side})`;
+            } else if (this.currentExercise === 'trunk-sway') {
+                sideText = ` (โยก${side})`;
+            } else if (this.currentExercise === 'neck-tilt') {
+                sideText = ` (เอียง${side})`;
+            }
+        }
+
         if (state.isHolding) {
             return this.config.feedback.hold.replace('{progress}', Math.round(state.holdProgress)) + sideText;
         }
@@ -681,30 +736,35 @@ detectMovement() {
     }
 
     incrementRep() {
-        currentReps++;
-        this.exerciseState.lastCount = 0;  // ✅ รีเซ็ต lastCount หลังนับครบ
+    // ✅ กัน rep เกิน targetReps เด็ดขาด (ป้องกันครั้งที่ 11)
+    if (currentReps >= targetReps) return;
 
-        totalAccuracy += this.exerciseState.accuracy;
-        repAccuracyCount++;
+    currentReps++;
+    this.exerciseState.lastCount = 0;  // รีเซ็ต lastCount หลังนับครบ
 
-        updateRepCounter();
-        showSuccessFlash();
-        showCorrectPoseWithFeedback();  // ✅ เพิ่ม เรียกจอเขียว
-        playSuccessSound();
+    totalAccuracy += this.exerciseState.accuracy;
+    repAccuracyCount++;
 
-        console.log(`✅ ทำสำเร็จ ${currentReps}/${targetReps} ครั้ง (ความแม่นยำ: ${Math.round(this.exerciseState.accuracy)}%)`);
+    updateRepCounter();
+    showSuccessFlash();
+    showCorrectPoseWithFeedback();
+    playSuccessSound();
 
-        if (currentReps >= targetReps) {
-            setTimeout(() => {
-                completeExercise();
-            }, 1000);
-        } else {
-            setTimeout(() => {
-                this.exerciseState.phase = 'rest';
-                updateStatusMessage('เตรียมพร้อมสำหรับครั้งต่อไป...');
-            }, 1500);
-        }
+    console.log(`✅ ทำสำเร็จ ${currentReps}/${targetReps} ครั้ง (ความแม่นยำ: ${Math.round(this.exerciseState.accuracy)}%)`);
+
+    if (currentReps >= targetReps) {
+        // ✅ หยุดรับ input ทันที ป้องกัน frame ถัดไปนับซ้ำ
+        this.isRunning = false;
+        setTimeout(() => {
+            completeExercise();
+        }, 1000);
+    } else {
+        setTimeout(() => {
+            this.exerciseState.phase = 'rest';
+            updateStatusMessage('เตรียมพร้อมสำหรับครั้งต่อไป...');
+        }, 1500);
     }
+}
         stop() {
             this.isRunning = false;
             if (this.camera) this.camera.stop();
@@ -897,13 +957,16 @@ function goBack() {
     }
 }
 
-function endExercise() {
+async function endExercise() {
     if (confirm('ต้องการจบการฝึกหรือไม่?')) {
-        cleanup();
-        window.location.href = 'dashboard.html';
+        if (currentReps > 0 && !isComplete) {
+            await completeExercise();   // บันทึก reps ที่ทำได้จริง แล้วนำทางไป report
+        } else {
+            cleanup();
+            window.location.href = 'dashboard.html';
+        }
     }
 }
-
 function cleanup() {
     if (physioApp) {
         physioApp.destroy();
