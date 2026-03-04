@@ -448,7 +448,7 @@ function updateChartWithData(weeklyData) {
     
     const ctx = canvas.getContext('2d');
     
-    const data = weeklyData.map(day => Math.round(day.avg_accuracy || 0));
+    const data = weeklyData.map(day => Math.round(day.total_reps || day.avg_reps || 0));
     const labels = weeklyData.map(day => {
         const date = new Date(day.session_date);
         return date.toLocaleDateString('th-TH', { weekday: 'short' });
@@ -507,7 +507,7 @@ function updateTable() {
 
     if (exerciseHistory.length === 0) {
         const row = tbody.insertRow();
-        row.innerHTML = `<td colspan="7" style="text-align: center; color: #718096; padding: 2rem;">ยังไม่มีข้อมูลการออกกำลังกาย</td>`;
+        row.innerHTML = `<td colspan="6" style="text-align: center; color: #718096; padding: 2rem;">ยังไม่มีข้อมูลการออกกำลังกาย</td>`;
         return;
     }
 
@@ -530,10 +530,9 @@ function updateTable() {
             <td>${displayDate}</td>
             <td style="color: #718096;">${displayTime}</td>
             <td><strong>${exerciseName}</strong></td>
-            <td style="text-align:center">${leftReps}</td>
-            <td style="text-align:center">${rightReps}</td>
-            <td style="text-align:center;font-weight:700">${totalReps}</td>
-            <td style="text-align:center">${session.accuracy || 0}%</td>
+            <td style="text-align:center;color:#3182ce;font-weight:600">${leftReps} ครั้ง</td>
+            <td style="text-align:center;color:#38a169;font-weight:600">${rightReps} ครั้ง</td>
+            <td style="text-align:center;font-weight:700;color:#2563eb;font-size:15px">${totalReps} ครั้ง</td>
         `;
     }
 
@@ -647,7 +646,8 @@ function updateChart() {
     }
     
     const recentData = exerciseHistory.slice(0, 7).reverse();
-    const data = recentData.map(session => session.accuracy || 0);
+    const data = recentData.map(session => session.actual_reps || 0);
+    const exerciseNames = recentData.map(session => session.exerciseName || 'ท่ากายภาพ');
     const labels = recentData.map(session => {
         try {
             const date = new Date(session.timestamp);
@@ -657,84 +657,131 @@ function updateChart() {
         }
     });
     
-    drawChart(ctx, canvas, data, labels);
+    drawChart(ctx, canvas, data, labels, exerciseNames);
 }
 
-function drawChart(ctx, canvas, data, labels) {
+function drawChart(ctx, canvas, data, labels, exerciseNames) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
-    const padding = 40;
-    const chartWidth = canvas.width - 2 * padding;
-    const chartHeight = canvas.height - 2 * padding;
-    const maxValue = 100;
+    const padding = { top: 45, right: 30, bottom: 70, left: 65 };
+    const chartWidth = canvas.width - padding.left - padding.right;
+    const chartHeight = canvas.height - padding.top - padding.bottom;
     
-    ctx.strokeStyle = '#e2e8f0';
-    ctx.lineWidth = 1;
+    // Dynamic max value (round up to nearest 5)
+    const rawMax = data.length > 0 ? Math.max(...data) : 10;
+    const maxValue = Math.max(10, Math.ceil(rawMax / 5) * 5 + 5);
+    const steps = 5;
     
-    for (let i = 0; i <= 5; i++) {
-        const y = padding + (chartHeight / 5) * i;
+    // Draw background grid
+    for (let i = 0; i <= steps; i++) {
+        const y = padding.top + (chartHeight / steps) * i;
+        const value = Math.round(maxValue - (maxValue / steps) * i);
+        
+        ctx.strokeStyle = i === steps ? '#cbd5e0' : '#e2e8f0';
+        ctx.lineWidth = i === steps ? 1.5 : 1;
         ctx.beginPath();
-        ctx.moveTo(padding, y);
-        ctx.lineTo(padding + chartWidth, y);
+        ctx.moveTo(padding.left, y);
+        ctx.lineTo(padding.left + chartWidth, y);
         ctx.stroke();
         
-        ctx.fillStyle = '#718096';
-        ctx.font = '10px Kanit';
+        ctx.fillStyle = '#4a5568';
+        ctx.font = 'bold 13px Kanit';
         ctx.textAlign = 'right';
-        const value = maxValue - (maxValue / 5) * i;
-        ctx.fillText(`${value}%`, padding - 10, y + 3);
+        ctx.fillText(`${value}`, padding.left - 8, y + 4);
     }
     
-    if (data.length > 0) {
-        for (let i = 0; i < data.length; i++) {
-            const x = padding + (chartWidth / Math.max(1, data.length - 1)) * i;
-            ctx.beginPath();
-            ctx.moveTo(x, padding);
-            ctx.lineTo(x, padding + chartHeight);
-            ctx.stroke();
-        }
-    }
+    // Y-axis label
+    ctx.save();
+    ctx.translate(14, padding.top + chartHeight / 2);
+    ctx.rotate(-Math.PI / 2);
+    ctx.fillStyle = '#718096';
+    ctx.font = '13px Kanit';
+    ctx.textAlign = 'center';
+    ctx.fillText('จำนวนครั้ง', 0, 0);
+    ctx.restore();
     
+    if (data.length === 0) return;
+    
+    const stepX = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth / 2;
+    const getX = i => padding.left + (data.length > 1 ? stepX * i : chartWidth / 2);
+    const getY = v => padding.top + chartHeight - (v / maxValue) * chartHeight;
+    
+    // Area fill under the line
     if (data.length > 1) {
-        ctx.strokeStyle = '#4fd1c7';
+        const grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
+        grad.addColorStop(0, 'rgba(79, 209, 199, 0.35)');
+        grad.addColorStop(1, 'rgba(79, 209, 199, 0.02)');
+        ctx.fillStyle = grad;
+        ctx.beginPath();
+        ctx.moveTo(getX(0), padding.top + chartHeight);
+        data.forEach((v, i) => ctx.lineTo(getX(i), getY(v)));
+        ctx.lineTo(getX(data.length - 1), padding.top + chartHeight);
+        ctx.closePath();
+        ctx.fill();
+    }
+    
+    // Draw line
+    if (data.length > 1) {
+        ctx.strokeStyle = '#319795';
+        ctx.lineWidth = 3;
+        ctx.lineJoin = 'round';
+        ctx.beginPath();
+        data.forEach((v, i) => {
+            i === 0 ? ctx.moveTo(getX(i), getY(v)) : ctx.lineTo(getX(i), getY(v));
+        });
+        ctx.stroke();
+    }
+    
+    // Draw dots, value labels, and x-axis labels
+    data.forEach((v, i) => {
+        const x = getX(i);
+        const y = getY(v);
+        
+        // Dot with white border
+        ctx.fillStyle = '#fff';
+        ctx.beginPath();
+        ctx.arc(x, y, 9, 0, 2 * Math.PI);
+        ctx.fill();
+        ctx.strokeStyle = '#319795';
         ctx.lineWidth = 3;
         ctx.beginPath();
-        
-        data.forEach((value, index) => {
-            const x = padding + (chartWidth / Math.max(1, data.length - 1)) * index;
-            const y = padding + chartHeight - (value / maxValue) * chartHeight;
-            
-            if (index === 0) {
-                ctx.moveTo(x, y);
-            } else {
-                ctx.lineTo(x, y);
-            }
-        });
-        
+        ctx.arc(x, y, 9, 0, 2 * Math.PI);
         ctx.stroke();
-    }
-    
-    data.forEach((value, index) => {
-        const x = padding + (chartWidth / Math.max(1, data.length - 1)) * index;
-        const y = padding + chartHeight - (value / maxValue) * chartHeight;
         
-        ctx.fillStyle = '#38b2ac';
+        // Inner dot
+        ctx.fillStyle = '#319795';
         ctx.beginPath();
-        ctx.arc(x, y, 4, 0, 2 * Math.PI);
+        ctx.arc(x, y, 3, 0, 2 * Math.PI);
         ctx.fill();
         
-        ctx.fillStyle = '#2d3748';
-        ctx.font = '10px Kanit';
+        // Value badge above dot
+        const label = `${v} ครั้ง`;
+        ctx.font = 'bold 14px Kanit';
+        const tw = ctx.measureText(label).width;
+        const bx = x - tw/2 - 5;
+        const by = y - 28;
+        ctx.fillStyle = '#2c7a7b';
+        ctx.beginPath();
+        ctx.roundRect(bx, by, tw + 10, 18, 4);
+        ctx.fill();
+        ctx.fillStyle = '#fff';
         ctx.textAlign = 'center';
-        ctx.fillText(`${value}%`, x, y - 10);
-    });
-    
-    ctx.fillStyle = '#718096';
-    ctx.font = '10px Kanit';
-    ctx.textAlign = 'center';
-    labels.forEach((label, index) => {
-        const x = padding + (chartWidth / Math.max(1, data.length - 1)) * index;
-        ctx.fillText(label, x, canvas.height - 10);
+        ctx.fillText(label, x, by + 13);
+        
+        // X-axis date label
+        ctx.fillStyle = '#4a5568';
+        ctx.font = '13px Kanit';
+        ctx.textAlign = 'center';
+        ctx.fillText(labels[i] || '', x, padding.top + chartHeight + 20);
+        
+        // Exercise name below date (truncate if long)
+        if (exerciseNames && exerciseNames[i]) {
+            let exName = exerciseNames[i];
+            if (exName.length > 8) exName = exName.substring(0, 7) + '…';
+            ctx.fillStyle = '#718096';
+            ctx.font = '11px Kanit';
+            ctx.fillText(exName, x, padding.top + chartHeight + 38);
+        }
     });
 }
 
@@ -820,7 +867,7 @@ function displayFilteredResults(filteredData) {
 
     if (filteredData.length === 0) {
         const row = tbody.insertRow();
-        row.innerHTML = `<td colspan="8" style="text-align: center; color: #718096; padding: 2rem;">ไม่พบข้อมูลที่ค้นหา</td>`;
+        row.innerHTML = `<td colspan="6" style="text-align: center; color: #718096; padding: 2rem;">ไม่พบข้อมูลที่ค้นหา</td>`;
         return;
     }
 
@@ -850,11 +897,6 @@ function displayFilteredResults(filteredData) {
                     ${totalReps} ครั้ง
                 </span>
             </td>
-            <td style="text-align: center;">
-                <span class="accuracy-badge ${getAccuracyClass(session.accuracy)}">
-                    ${session.accuracy}%
-                </span>
-            </td>
         `;
     });
 
@@ -868,7 +910,7 @@ function displayFilteredResults(filteredData) {
 function goBack() {
     showLoading('กำลังกลับไปหน้าหลัก...');
     setTimeout(() => {
-        window.location.href = 'patient-dashboard.html';
+        window.location.href = 'dashboard.html';
     }, 1000);
 }
 
@@ -894,7 +936,7 @@ function printReport() {
 function continueExercise() {
     showLoading('กำลังเตรียมโปรแกรมการออกกำลังกาย...');
     setTimeout(() => {
-        window.location.href = 'patient-dashboard.html';
+        window.location.href = 'dashboard.html';
     }, 1000);
 }
 
