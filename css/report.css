@@ -529,7 +529,7 @@ body::before {
 
 .chart-card {
     background: var(--background);
-    padding: 32px;
+    padding: 36px 40px;
     border-radius: var(--radius-lg);
     box-shadow: var(--elevation-1);
 }
@@ -549,7 +549,7 @@ body::before {
 
 .chart-container {
     position: relative;
-    height: 300px;
+    height: 420px;
 }
 
 .chart-container canvas {
@@ -795,7 +795,7 @@ body::before {
     }
 
     .chart-container {
-        height: 250px;
+        height: 320px;
     }
 }
 
