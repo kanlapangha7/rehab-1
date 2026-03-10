@@ -43,56 +43,30 @@
         </div>
 
         <!-- Section Title -->
-        <h2 class="section-title">ท่าการฟื้นฟูสำหรับคุณ</h2>
+        <h2 class="section-title">แผนการฟื้นฟูวันนี้</h2>
 
-        <!-- Exercise Grid -->
-        <div class="exercise-grid">
-            <!-- Card 1: ยกแขนไปข้างหน้า -->
-            <div class="exercise-card orange-card" onclick="selectExercise('arm-raise-forward')">
-                <div class="exercise-illustration">
-                    <div class="person-icon">
-                        <i class="fas fa-hand-paper"></i>
-                    </div>
-                </div>
-                <h3>ยกแขนไปข้างหน้า</h3>
-                <div class="exercise-meta">
-                    <span class="duration">
-                        <i class="fas fa-play-circle"></i>
-                        5 นาที
-                    </span>
+        <!-- Plan Info Banner -->
+        <div id="planInfoBanner" class="plan-info-banner hidden">
+            <div class="plan-info-left">
+                <i class="fas fa-clipboard-list"></i>
+                <div>
+                    <div class="plan-name" id="planName">แผนการฟื้นฟู</div>
+                    <div class="plan-physio" id="planPhysio">กำหนดโดย: นักกายภาพบำบัด</div>
                 </div>
             </div>
-
-            <!-- Card 2: เหยียดเข่าตรง -->
-            <div class="exercise-card blue-card" onclick="selectExercise('leg-extension')">
-                <div class="exercise-illustration">
-                    <div class="person-icon">
-                        <i class="fas fa-walking"></i>
-                    </div>
-                </div>
-                <h3>เหยียดเข่าตรง</h3>
-                <div class="exercise-meta">
-                    <span class="duration">
-                        <i class="fas fa-play-circle"></i>
-                        8 นาที
-                    </span>
+            <div class="plan-progress-wrap">
+                <div class="plan-progress-label">วันนี้ <span id="doneCount">0</span>/<span id="totalCount">0</span> ท่า ครบแผน</div>
+                <div class="plan-progress-bar">
+                    <div class="plan-progress-fill" id="progressFill" style="width:0%"></div>
                 </div>
             </div>
+        </div>
 
-            <!-- Card 3: โยกลำตัวซ้าย-ขวา -->
-            <div class="exercise-card pink-card" onclick="selectExercise('trunk-sway')">
-                <div class="exercise-illustration">
-                    <div class="person-icon">
-                        <i class="fas fa-sync-alt"></i>
-                    </div>
-                </div>
-                <h3>โยกลำตัวซ้าย-ขวา</h3>
-                <div class="exercise-meta">
-                    <span class="duration">
-                        <i class="fas fa-play-circle"></i>
-                        10 นาที
-                    </span>
-                </div>
+        <!-- Exercise List (per-set view) -->
+        <div id="exerciseGrid">
+            <div class="exercise-loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                <span>กำลังโหลดแผนการฝึก...</span>
             </div>
         </div>
 
@@ -139,84 +113,259 @@
 
     <!-- Custom JavaScript -->
     <script>
-        function selectExercise(exerciseType) {
-            // แสดง loading
-            document.getElementById('loadingOverlay').classList.remove('hidden');
-            
-            // เปลี่ยนหน้าไปยังหน้าคำแนะนำ
-            setTimeout(() => {
-                window.location.href = `exercise-instruction.html?type=${exerciseType}`;
-            }, 500);
+        const BASE_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? 'http://localhost:4000' : '';
+
+        // ─── ดึง token ───
+        function getToken() {
+            const t = localStorage.getItem('authToken') || sessionStorage.getItem('authToken')
+                || localStorage.getItem('token')     || sessionStorage.getItem('token');
+            if (t) return t;
+            try {
+                const raw = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+                if (raw) return JSON.parse(raw).token || '';
+            } catch(e) {}
+            return '';
         }
 
-        function scrollToExercises() {
-            document.querySelector('.exercise-grid').scrollIntoView({ 
-                behavior: 'smooth',
-                block: 'center'
-            });
+        // ─── เลือกท่าออกกำลังกาย ───
+        // ✅ บันทึก key ให้ตรงกับที่ potex.js อ่าน (selectedTargetReps / selectedTargetSets)
+        function selectExercise(exerciseId, exerciseName, targetReps, targetSets) {
+            localStorage.setItem('selectedExercise',     exerciseId);
+            localStorage.setItem('selectedExerciseName', exerciseName);
+            localStorage.setItem('selectedTargetReps',   targetReps);
+            localStorage.setItem('selectedTargetSets',   targetSets);
+            window.location.href = `exercise-instruction.html?type=${exerciseId}`;
+            // ✅ แก้: ส่ง ?type= ไปด้วย เพื่อให้ potex.js อ่านจาก URL ได้ถูกต้อง
         }
 
+        // ─── ออกจากระบบ ───
         function exitSystem() {
             if (confirm('คุณต้องการออกจากระบบหรือไม่?')) {
-                // ✅ ลบข้อมูลทั้งหมด
-                localStorage.clear();
-                sessionStorage.clear();
-                
-                // แสดง loading
-                const loadingOverlay = document.getElementById('loadingOverlay');
-                if (loadingOverlay) {
-                    loadingOverlay.classList.remove('hidden');
-                    const loadingText = loadingOverlay.querySelector('p');
-                    if (loadingText) {
-                        loadingText.textContent = 'กำลังออกจากระบบ...';
-                    }
-                }
-                
-                // ✅ ไปหน้า login
-                setTimeout(() => {
-                    window.location.href = 'login.html';
-                }, 1000);
+                localStorage.clear(); sessionStorage.clear();
+                const ov = document.getElementById('loadingOverlay');
+                if (ov) { ov.classList.remove('hidden'); ov.querySelector('p').textContent = 'กำลังออกจากระบบ...'; }
+                setTimeout(() => { window.location.href = 'login.html'; }, 1000);
             }
         }
 
-        // ✅ แก้ไข Search functionality - เพิ่ม null check
-        const searchInput = document.querySelector('.search-bar input');
-        
-        if (searchInput) {
-            searchInput.addEventListener('input', (e) => {
-                const searchTerm = e.target.value.toLowerCase();
-                const exerciseCards = document.querySelectorAll('.exercise-card');
-                
-                exerciseCards.forEach(card => {
-                    const title = card.querySelector('h3').textContent.toLowerCase();
-                    if (title.includes(searchTerm)) {
-                        card.style.display = 'block';
-                    } else {
-                        card.style.display = 'none';
-                    }
-                });
+        // ─── default ท่า fallback ───
+        function getDefaultExercises() {
+            return [
+                { exercise_id: 60001, name_th: 'ยกแขนไปข้างหน้า',  exercise_type: 'arm-raise-forward', icon: 'fa-hand-paper', sets: 3, reps_per_set: 10, color: 'orange' },
+                { exercise_id: 60002, name_th: 'เหยียดเข่าตรง',     exercise_type: 'leg-extension',     icon: 'fa-walking',    sets: 3, reps_per_set: 10, color: 'green'  },
+                { exercise_id: 60003, name_th: 'โยกลำตัวซ้าย-ขวา', exercise_type: 'trunk-sway',        icon: 'fa-sync-alt',   sets: 3, reps_per_set: 10, color: 'teal'   }
+            ];
+        }
+
+        // ─── icon/color map ───
+        const iconMap = {
+            'arm-raise-forward': 'fa-hand-paper',
+            'leg-extension':     'fa-walking',
+            'trunk-sway':        'fa-sync-alt',
+            'balance':           'fa-balance-scale',
+            'default':           'fa-dumbbell'
+        };
+
+        // ✅ เพิ่ม: map exercise_id → exercise_type
+        // เพราะ DB เก็บ exercise_id (60001) แต่ potex.js ต้องการ string type
+        const exerciseIdMap = {
+            60001: 'arm-raise-forward',
+            60002: 'leg-extension',
+            60003: 'trunk-sway',
+            60004: 'neck-tilt'
+        };
+
+        const colorList = ['orange', 'green', 'teal', 'blue', 'purple', 'pink'];
+
+        // ─── สร้าง dots แทน set ───
+        function buildSetDots(setsDone, setsTotal) {
+            let html = '<div class="set-dots">';
+            for (let i = 1; i <= setsTotal; i++) {
+                const done = i <= setsDone;
+                html += `<div class="set-dot ${done ? 'done' : ''}">
+                    ${done ? '<i class="fas fa-check"></i>' : i}
+                </div>`;
+            }
+            html += '</div>';
+            return html;
+        }
+
+        // ─── render cards ───
+        function renderExerciseCards(container, exercises, doneMap) {
+            container.innerHTML = '';
+
+            exercises.forEach((ex, idx) => {
+                const color     = ex.color || colorList[idx % colorList.length];
+                const icon      = ex.icon  || iconMap[ex.exercise_type] || iconMap['default'];
+                const setsTotal = ex.sets  || 3;
+                const reps      = ex.reps_per_set || 10;
+                const setsDone  = doneMap[ex.exercise_id] || doneMap[ex.exercise_type] || 0;
+                const allDone   = setsDone >= setsTotal;
+
+                const card = document.createElement('div');
+                card.className = `ex-plan-card color-${color} ${allDone ? 'all-done' : ''}`;
+                card.onclick   = () => selectExercise(ex.exercise_type, ex.name_th, reps, setsTotal);
+
+                card.innerHTML = `
+                    <div class="ex-plan-left">
+                        <div class="ex-plan-icon color-${color}">
+                            <i class="fas ${icon}"></i>
+                        </div>
+                    </div>
+                    <div class="ex-plan-body">
+                        <div class="ex-plan-name">
+                            ${ex.name_th}
+                            ${allDone ? '<span class="done-tag"><i class="fas fa-check-circle"></i> ครบแล้ว</span>' : ''}
+                        </div>
+                        <div class="ex-plan-target">
+                            เป้าหมายวันนี้: <strong>${setsTotal} เซต × ${reps} ครั้ง/เซต</strong>
+                        </div>
+                        <div class="ex-plan-progress-row">
+                            ${buildSetDots(setsDone, setsTotal)}
+                            <span class="sets-label">${setsDone}/${setsTotal} เซต</span>
+                        </div>
+                        ${ex.hold_seconds ? `<div class="ex-plan-hold"><i class="fas fa-clock"></i> ค้างท่า ${ex.hold_seconds} วินาที/ครั้ง</div>` : ''}
+                        ${ex.ex_notes    ? `<div class="ex-plan-note"><i class="fas fa-sticky-note"></i> ${ex.ex_notes}</div>` : ''}
+                    </div>
+                    <div class="ex-plan-arrow ${allDone ? 'done-arrow' : ''}">
+                        ${allDone ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-chevron-right"></i>'}
+                    </div>
+                `;
+                container.appendChild(card);
             });
         }
-        
-        // ✅ โหลดชื่อผู้ใช้จาก localStorage/sessionStorage
-        window.addEventListener('DOMContentLoaded', () => {
+
+        // ─── อัพเดต progress banner ───
+        function updateProgress(exercises, doneMap) {
+            let doneCount = 0;
+            exercises.forEach(ex => {
+                const setsDone  = doneMap[ex.exercise_id] || doneMap[ex.exercise_type] || 0;
+                const setsTotal = ex.sets || 3;
+                if (setsDone >= setsTotal) doneCount++;
+            });
+            document.getElementById('doneCount').textContent  = doneCount;
+            document.getElementById('totalCount').textContent = exercises.length;
+            const pct = exercises.length > 0 ? Math.round((doneCount / exercises.length) * 100) : 0;
+            document.getElementById('progressFill').style.width = pct + '%';
+            document.getElementById('planInfoBanner').classList.remove('hidden');
+        }
+
+        // ─── ดึงแผนจาก API ───
+        async function loadExercisePlan() {
+            const token     = getToken();
+            const container = document.getElementById('exerciseGrid');
+
+            let userData = {};
             try {
-                const userDataStr = localStorage.getItem('userData') || sessionStorage.getItem('userData');
-                if (userDataStr) {
-                    const userData = JSON.parse(userDataStr);
-                    
-                    // อัพเดทชื่อผู้ใช้
-                    const userNameEl = document.getElementById('userName');
-                    const greetingNameEl = document.getElementById('greetingName');
-                    
-                    if (userData.full_name) {
-                        if (userNameEl) userNameEl.textContent = userData.full_name;
-                        if (greetingNameEl) greetingNameEl.textContent = userData.full_name;
-                    }
-                }
-            } catch (error) {
-                console.error('Error loading user data:', error);
+                const raw = localStorage.getItem('userData') || sessionStorage.getItem('userData') || '{}';
+                userData = JSON.parse(raw);
+            } catch(e) {}
+
+            let patientId = userData?.patient_id
+                        || userData?.patient?.patient_id
+                        || userData?.patientId
+                        || userData?.user_id;
+
+            if (!patientId) {
+                console.warn('ไม่พบ patient_id — แสดงท่า default');
+                renderExerciseCards(container, getDefaultExercises(), {});
+                return;
             }
+
+            try {
+                // ── ดึงแผนการฝึก ──
+                const planRes  = await fetch(`${BASE_URL}/api/patients/${patientId}/exercise-plans`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (!planRes.ok) {
+                    renderExerciseCards(container, getDefaultExercises(), {});
+                    return;
+                }
+
+                const planJson = await planRes.json();
+                const data     = planJson.success ? planJson.data : [];
+
+                if (!data || data.length === 0) {
+                    renderExerciseCards(container, getDefaultExercises(), {});
+                    return;
+                }
+
+                // ✅ เพิ่ม: ดึงประวัติการฝึกวันนี้เพื่อสร้าง doneMap
+                let doneMap = {};
+                try {
+                    const sessRes  = await fetch(`${BASE_URL}/api/exercise-sessions?period=1day`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    const sessJson = await sessRes.json();
+
+                    if (sessJson.success && sessJson.data) {
+                        // นับจำนวน sets ที่ทำแล้วในวันนี้ แยกตาม exercise_id
+                        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+                        sessJson.data.forEach(s => {
+                            const sessionDate = s.session_date
+                                ? new Date(s.session_date).toISOString().slice(0, 10)
+                                : '';
+                            if (sessionDate === today && s.exercise_id) {
+                                // ✅ แก้: นับ 1 ต่อ 1 session ไม่ใช่ actual_sets
+                                doneMap[s.exercise_id] = (doneMap[s.exercise_id] || 0) + 1;
+                            }
+                        });
+                    }
+                } catch(e) {
+                    console.warn('ดึงประวัติวันนี้ไม่สำเร็จ:', e);
+                }
+
+                // แปลง API response → format สำหรับ renderExerciseCards
+                const exercises = data.map((ex, idx) => ({
+                    exercise_id:   ex.exercise_id,
+                    name_th:       ex.name_th,
+                    exercise_type: ex.name_en
+                                || exerciseIdMap[ex.exercise_id]
+                                || String(ex.exercise_id),
+                    sets:          ex.target_sets,
+                    reps_per_set:  ex.target_reps,
+                    icon:          iconMap[ex.name_en]
+                                || iconMap[exerciseIdMap[ex.exercise_id]]
+                                || iconMap['default'],
+                    color:         colorList[idx % colorList.length],
+                    hold_seconds:  ex.hold_seconds || null,
+                    ex_notes:      ex.notes || null
+                }));
+
+                // ✅ ส่ง doneMap จริงแทน {}
+                renderExerciseCards(container, exercises, doneMap);
+                updateProgress(exercises, doneMap);
+
+                if (data[0]?.plan_name) {
+                    document.getElementById('planName').textContent   = data[0].plan_name;
+                    document.getElementById('planPhysio').textContent = 'กำหนดโดย: นักกายภาพบำบัด';
+                }
+
+            } catch (err) {
+                console.error('โหลดแผนไม่สำเร็จ:', err);
+                renderExerciseCards(container, getDefaultExercises(), {});
+            }
+        }
+        // ─── โหลดชื่อผู้ใช้ ───
+        function loadUserName() {
+            try {
+                const raw = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+                if (!raw) return;
+                const user = JSON.parse(raw);
+                if (user.full_name) {
+                    const el1 = document.getElementById('userName');
+                    const el2 = document.getElementById('greetingName');
+                    if (el1) el1.textContent = user.full_name;
+                    if (el2) el2.textContent = user.full_name;
+                }
+            } catch(e) {}
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            loadUserName();
+            loadExercisePlan();
         });
     </script>
 </body>
