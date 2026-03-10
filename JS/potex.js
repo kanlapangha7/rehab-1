@@ -135,36 +135,42 @@ class ImprovedPoseDetector {
         };
     }
 
-    async initialize() {
-        try {
-            console.log('🚀 กำลังตั้งค่าระบบตรวจจับท่าทาง...');
-            
-            await this.waitForMediaPipe();
-            
-            this.pose = new Pose({
-                locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
-            });
-
-           this.pose.setOptions({
-            modelComplexity: StrokeConfig.CONFIG.MEDIAPIPE.MODEL_COMPLEXITY,
-            smoothLandmarks: StrokeConfig.CONFIG.MEDIAPIPE.SMOOTH_LANDMARKS,
-            enableSegmentation: StrokeConfig.CONFIG.MEDIAPIPE.ENABLE_SEGMENTATION,
-            minDetectionConfidence: StrokeConfig.CONFIG.MEDIAPIPE.MIN_DETECTION_CONFIDENCE,
-            minTrackingConfidence: StrokeConfig.CONFIG.MEDIAPIPE.MIN_TRACKING_CONFIDENCE,
+    // ===================================================
+// ฟังก์ชัน initialize() ใน class ImprovedPoseDetector
+// ===================================================
+async initialize() {
+    try {
+        console.log('🚀 กำลังตั้งค่าระบบตรวจจับท่าทาง...');
+        
+        await this.waitForMediaPipe();
+        
+        this.pose = new Pose({
+            locateFile: file => `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`
         });
 
+        // ✅ แก้ไข: เพิ่ม null-safety กัน crash ถ้า config.js โหลดไม่สำเร็จ
+        // เดิมใช้ StrokeConfig.CONFIG.MEDIAPIPE.xxx โดยตรง → crash ถ้าไม่มี config.js
+        const mpConfig = (window.StrokeConfig && StrokeConfig.CONFIG && StrokeConfig.CONFIG.MEDIAPIPE)
+            ? StrokeConfig.CONFIG.MEDIAPIPE : {};
 
-            this.pose.onResults(results => this.onResults(results));
-            await this.setupCamera();
-            
-            console.log('✅ ระบบพร้อมใช้งาน');
-            return true;
-        } catch (error) {
-            console.error('❌ Error initializing:', error);
-            return false;
-        }
+        this.pose.setOptions({
+            modelComplexity:        mpConfig.MODEL_COMPLEXITY          ?? 1,
+            smoothLandmarks:        mpConfig.SMOOTH_LANDMARKS          ?? true,
+            enableSegmentation:     mpConfig.ENABLE_SEGMENTATION       ?? false,
+            minDetectionConfidence: mpConfig.MIN_DETECTION_CONFIDENCE  ?? 0.5,
+            minTrackingConfidence:  mpConfig.MIN_TRACKING_CONFIDENCE   ?? 0.5,
+        });
+
+        this.pose.onResults(results => this.onResults(results));
+        await this.setupCamera();
+        
+        console.log('✅ ระบบพร้อมใช้งาน');
+        return true;
+    } catch (error) {
+        console.error('❌ Error initializing:', error);
+        return false;
     }
-
+}
     async waitForMediaPipe() {
         return new Promise((resolve, reject) => {
             let attempts = 0;
@@ -845,7 +851,6 @@ function speak(text) {
     window.speechSynthesis.speak(utter);
 }
 
-
 // ===== SAVE TO DATABASE =====
 async function saveToDatabase() {
     try {
@@ -862,21 +867,23 @@ async function saveToDatabase() {
 
         const duration = Math.floor((Date.now() - sessionStartTime) / 1000);
 
-        // ✅ แก้ไข: ชื่อ field ให้ตรงกับที่ server.js รับ
-        const totalReps = currentReps;
+        const totalReps  = currentReps;
         const leftCount  = Math.ceil(totalReps / 2);
         const rightCount = Math.floor(totalReps / 2);
+
+        // ✅ แก้: ดึง actual_sets จาก targetReps/repsPerSet จริง ไม่ hardcode เป็น 1
+        const actualSets = parseInt(localStorage.getItem('selectedTargetSets')) || 1;
 
         const payload = {
             exercise_id:      getExerciseIdFromName(),
             exercise_name:    physioApp?.config?.name || 'ท่าการฝึก',
             exercise_type:    physioApp?.currentExercise || 'unknown',
-            actual_reps:      totalReps,
-            actual_sets:      1,
-            accuracy:         Math.round(physioApp?.exerciseState?.accuracy || 0), // ✅ เปลี่ยนจาก accuracy_percent
-            session_duration: duration,   // ✅ เปลี่ยนจาก duration_seconds
-            left_count:       leftCount,  // ✅ เพิ่ม
-            right_count:      rightCount  // ✅ เพิ่ม
+            actual_reps:      totalReps,      // ✅ จำนวนที่ทำจริง ไม่ใช่ targetReps
+            actual_sets:      actualSets,
+            accuracy:         Math.round(physioApp?.exerciseState?.accuracy || 0),
+            session_duration: duration,
+            left_count:       leftCount,
+            right_count:      rightCount
         };
 
         console.log("📤 Sending to API:", payload);
@@ -905,6 +912,7 @@ async function saveToDatabase() {
         return false;
     }
 }
+
 function getExerciseIdFromName() {
     const map = {
         'arm-raise-forward': 60001,
@@ -919,6 +927,10 @@ function getExerciseIdFromName() {
 async function completeExercise() {
     if (isComplete) return;
     isComplete = true;
+
+    // ✅ เพิ่ม: อัพเดตตัวเลขใน overlay ให้ตรงกับที่ทำจริง
+    const completeRepsEl = document.getElementById('complete-reps');
+    if (completeRepsEl) completeRepsEl.textContent = currentReps;
 
     const currentDate = new Date();
 
@@ -976,11 +988,36 @@ function cleanup() {
     }
 }
 
+// ===================================================
+// ฟังก์ชัน getSelectedExerciseInfo()
+// ===================================================
 function getSelectedExerciseInfo() {
-    const selectedExercise = localStorage.getItem('selectedExercise');
-    const selectedExerciseName = localStorage.getItem('selectedExerciseName');
+    const urlParams = new URLSearchParams(window.location.search);
+    const exerciseFromURL = urlParams.get('type'); // ← อ่าน URL ก่อน
+
+    const selectedExercise = exerciseFromURL 
+        || localStorage.getItem('selectedExercise'); // ← ถ้าไม่มี URL ค่อย fallback
+
+    // อ่านชื่อท่าจาก EXERCISE_CONFIG ตาม id ที่ได้จริง
+    // ไม่พึ่ง localStorage ที่อาจค้างค่าเก่า
+    const selectedExerciseName = (EXERCISE_CONFIG[selectedExercise]?.name)
+        || localStorage.getItem('selectedExerciseName');
+
+    const selectedTargetReps = parseInt(localStorage.getItem('selectedTargetReps')) || 10;
+    const selectedTargetSets = parseInt(localStorage.getItem('selectedTargetSets')) || 3;
+
     if (!selectedExercise || !selectedExerciseName) return null;
-    return { id: selectedExercise, name: selectedExerciseName };
+
+    // ✅ อัพเดท localStorage ให้ตรงกับที่กำลังเล่นจริง (กัน stale value)
+    localStorage.setItem('selectedExercise', selectedExercise);
+    localStorage.setItem('selectedExerciseName', selectedExerciseName);
+
+    return {
+        id:          selectedExercise,
+        name:        selectedExerciseName,
+        target_reps: selectedTargetReps,
+        target_sets: selectedTargetSets
+    };
 }
 
 // Initialization
@@ -995,8 +1032,11 @@ document.addEventListener('DOMContentLoaded', async function() {
             return;
         }
 
-        elements.exerciseTitle.textContent = exerciseInfo.name;
-        elements.targetRepsElement.textContent = targetReps;
+        // ✅ ดึง target_reps / target_sets จากแผนที่นักกายภาพกำหนด
+        targetReps = exerciseInfo.target_reps;
+
+        elements.exerciseTitle.textContent        = exerciseInfo.name;
+        elements.targetRepsElement.textContent    = targetReps;
         
         // สร้าง Canvas Renderer
         canvasRenderer = new CanvasRenderer(elements.canvas, elements.video);

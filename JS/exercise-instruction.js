@@ -236,22 +236,34 @@ function goBack() {
     window.history.back();
 }
 
+// ===================================================
+// ฟังก์ชัน startExercise()
+// ===================================================
 function startExercise() {
     const exerciseType = getExerciseType();
     const exercise = exerciseData[exerciseType];
-    
-    // บันทึกลง localStorage สำหรับ potex.js
+
     localStorage.setItem('selectedExercise', exerciseType);
     localStorage.setItem('selectedExerciseName', exercise.name);
-    
-    // Show loading
+
+    // ✅ แก้ไข: เปลี่ยน key จาก 'targetReps'/'targetSets'
+    //          → 'selectedTargetReps'/'selectedTargetSets'
+    //          เพราะ potex.js อ่าน localStorage.getItem('selectedTargetReps')
+    //          ถ้า key ไม่ตรง → ได้ null → fallback เป็น 10 ตลอด
+    if (!localStorage.getItem('selectedTargetReps') || localStorage.getItem('selectedTargetReps') === 'null') {
+        localStorage.setItem('selectedTargetReps', 10);
+    }
+    if (!localStorage.getItem('selectedTargetSets') || localStorage.getItem('selectedTargetSets') === 'null') {
+        localStorage.setItem('selectedTargetSets', 3);
+    }
+
     document.body.insertAdjacentHTML('beforeend', `
-        <div class="loading-overlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(30,136,229,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999;">
+        <div class="loading-overlay" style="position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(30,136,229,0.95);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;">
             <div class="spinner"></div>
-            <p style="color: white; margin-top: 20px; font-size: 16px; font-weight: 500;">กำลังเริ่มการฝึก...</p>
+            <p style="color:white;margin-top:20px;font-size:16px;font-weight:500;">กำลังเริ่มการฝึก...</p>
         </div>
     `);
-    
+
     setTimeout(() => {
         window.location.href = `exercise-camera.html?type=${exerciseType}`;
     }, 500);

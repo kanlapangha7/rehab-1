@@ -529,7 +529,7 @@ body::before {
 
 .chart-card {
     background: var(--background);
-    padding: 36px 40px;
+    padding: 28px 24px;
     border-radius: var(--radius-lg);
     box-shadow: var(--elevation-1);
 }
@@ -549,11 +549,13 @@ body::before {
 
 .chart-container {
     position: relative;
-    height: 420px;
+    width: 100%;
+    /* height driven by JS based on width */
 }
 
 .chart-container canvas {
-    max-width: 100%;
+    display: block;
+    width: 100% !important;
     height: auto !important;
 }
 
@@ -795,7 +797,15 @@ body::before {
     }
 
     .chart-container {
-        height: 320px;
+        /* let JS control height */
+    }
+
+    .chart-card {
+        padding: 20px 16px;
+    }
+
+    .chart-card h4 {
+        font-size: 1.1rem;
     }
 }
 

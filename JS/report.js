@@ -661,52 +661,83 @@ function updateChart() {
 }
 
 function drawChart(ctx, canvas, data, labels, exerciseNames) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    const padding = { top: 45, right: 30, bottom: 70, left: 65 };
-    const chartWidth = canvas.width - padding.left - padding.right;
-    const chartHeight = canvas.height - padding.top - padding.bottom;
-    
+    // ── Responsive: fit canvas to its CSS container ──────────────
+    const container = canvas.parentElement;
+    const dpr = window.devicePixelRatio || 1;
+    const cssW = container.clientWidth || 400;
+    const isMobile = cssW < 480;
+    const isTablet = cssW < 768;
+
+    // Aspect ratio: taller on small screens so points don't crowd
+    const aspectRatio = isMobile ? 1.4 : isTablet ? 1.8 : 2.4;
+    const cssH = Math.round(cssW / aspectRatio);
+
+    canvas.style.width  = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    canvas.width  = cssW * dpr;
+    canvas.height = cssH * dpr;
+    ctx.scale(dpr, dpr);
+    // ─────────────────────────────────────────────────────────────
+
+    ctx.clearRect(0, 0, cssW, cssH);
+
+    // Padding — tighter on mobile
+    const padding = {
+        top:    isMobile ? 36 : 45,
+        right:  isMobile ? 16 : 30,
+        bottom: isMobile ? 60 : 70,
+        left:   isMobile ? 46 : 65
+    };
+
+    const chartWidth  = cssW - padding.left - padding.right;
+    const chartHeight = cssH - padding.top  - padding.bottom;
+
     // Dynamic max value (round up to nearest 5)
-    const rawMax = data.length > 0 ? Math.max(...data) : 10;
+    const rawMax  = data.length > 0 ? Math.max(...data) : 10;
     const maxValue = Math.max(10, Math.ceil(rawMax / 5) * 5 + 5);
-    const steps = 5;
-    
+    const steps    = 5;
+
+    // Font sizes
+    const axisFont  = isMobile ? '10px Kanit' : '13px Kanit';
+    const labelFont = isMobile ? 'bold 11px Kanit' : 'bold 14px Kanit';
+    const exFont    = isMobile ? '9px Kanit'  : '11px Kanit';
+    const yLabelFont= isMobile ? '10px Kanit' : '13px Kanit';
+
     // Draw background grid
     for (let i = 0; i <= steps; i++) {
-        const y = padding.top + (chartHeight / steps) * i;
+        const y     = padding.top + (chartHeight / steps) * i;
         const value = Math.round(maxValue - (maxValue / steps) * i);
-        
+
         ctx.strokeStyle = i === steps ? '#cbd5e0' : '#e2e8f0';
-        ctx.lineWidth = i === steps ? 1.5 : 1;
+        ctx.lineWidth   = i === steps ? 1.5 : 1;
         ctx.beginPath();
         ctx.moveTo(padding.left, y);
         ctx.lineTo(padding.left + chartWidth, y);
         ctx.stroke();
-        
+
         ctx.fillStyle = '#4a5568';
-        ctx.font = 'bold 13px Kanit';
+        ctx.font      = axisFont;
         ctx.textAlign = 'right';
-        ctx.fillText(`${value}`, padding.left - 8, y + 4);
+        ctx.fillText(`${value}`, padding.left - 6, y + 4);
     }
-    
+
     // Y-axis label
     ctx.save();
-    ctx.translate(14, padding.top + chartHeight / 2);
+    ctx.translate(isMobile ? 10 : 14, padding.top + chartHeight / 2);
     ctx.rotate(-Math.PI / 2);
     ctx.fillStyle = '#718096';
-    ctx.font = '13px Kanit';
+    ctx.font      = yLabelFont;
     ctx.textAlign = 'center';
     ctx.fillText('จำนวนครั้ง', 0, 0);
     ctx.restore();
-    
+
     if (data.length === 0) return;
-    
+
     const stepX = data.length > 1 ? chartWidth / (data.length - 1) : chartWidth / 2;
-    const getX = i => padding.left + (data.length > 1 ? stepX * i : chartWidth / 2);
-    const getY = v => padding.top + chartHeight - (v / maxValue) * chartHeight;
-    
-    // Area fill under the line
+    const getX  = i => padding.left + (data.length > 1 ? stepX * i : chartWidth / 2);
+    const getY  = v => padding.top + chartHeight - (v / maxValue) * chartHeight;
+
+    // Area fill
     if (data.length > 1) {
         const grad = ctx.createLinearGradient(0, padding.top, 0, padding.top + chartHeight);
         grad.addColorStop(0, 'rgba(79, 209, 199, 0.35)');
@@ -719,78 +750,100 @@ function drawChart(ctx, canvas, data, labels, exerciseNames) {
         ctx.closePath();
         ctx.fill();
     }
-    
-    // Draw line
+
+    // Line
     if (data.length > 1) {
         ctx.strokeStyle = '#319795';
-        ctx.lineWidth = 3;
-        ctx.lineJoin = 'round';
+        ctx.lineWidth   = isMobile ? 2 : 3;
+        ctx.lineJoin    = 'round';
         ctx.beginPath();
         data.forEach((v, i) => {
             i === 0 ? ctx.moveTo(getX(i), getY(v)) : ctx.lineTo(getX(i), getY(v));
         });
         ctx.stroke();
     }
-    
-    // Draw dots, value labels, and x-axis labels
+
+    // Dots + badges + x-labels
+    const dotR  = isMobile ? 6 : 9;
+    const innerR= isMobile ? 2 : 3;
+
     data.forEach((v, i) => {
         const x = getX(i);
         const y = getY(v);
-        
-        // Dot with white border
-        ctx.fillStyle = '#fff';
-        ctx.beginPath();
-        ctx.arc(x, y, 9, 0, 2 * Math.PI);
-        ctx.fill();
+
+        // Dot
+        ctx.fillStyle   = '#fff';
+        ctx.beginPath(); ctx.arc(x, y, dotR, 0, 2 * Math.PI); ctx.fill();
         ctx.strokeStyle = '#319795';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.arc(x, y, 9, 0, 2 * Math.PI);
-        ctx.stroke();
-        
-        // Inner dot
+        ctx.lineWidth   = isMobile ? 2 : 3;
+        ctx.beginPath(); ctx.arc(x, y, dotR, 0, 2 * Math.PI); ctx.stroke();
         ctx.fillStyle = '#319795';
-        ctx.beginPath();
-        ctx.arc(x, y, 3, 0, 2 * Math.PI);
-        ctx.fill();
-        
-        // Value badge above dot
-        const label = `${v} ครั้ง`;
-        ctx.font = 'bold 14px Kanit';
-        const tw = ctx.measureText(label).width;
-        const bx = x - tw/2 - 5;
-        const by = y - 28;
+        ctx.beginPath(); ctx.arc(x, y, innerR, 0, 2 * Math.PI); ctx.fill();
+
+        // Value badge
+        const badgeLabel = `${v} ครั้ง`;
+        ctx.font = labelFont;
+        const tw = ctx.measureText(badgeLabel).width;
+        const padH = isMobile ? 4 : 5;
+        const bh   = isMobile ? 16 : 18;
+        const bx   = x - tw / 2 - padH;
+        const by   = y - dotR - bh - 4;
+
         ctx.fillStyle = '#2c7a7b';
         ctx.beginPath();
-        ctx.roundRect(bx, by, tw + 10, 18, 4);
+        ctx.roundRect(bx, by, tw + padH * 2, bh, 4);
         ctx.fill();
-        ctx.fillStyle = '#fff';
-        ctx.textAlign = 'center';
-        ctx.fillText(label, x, by + 13);
-        
-        // X-axis date label
+        ctx.fillStyle  = '#fff';
+        ctx.textAlign  = 'center';
+        ctx.fillText(badgeLabel, x, by + bh - (isMobile ? 3 : 4));
+
+        // X-axis: day label
         ctx.fillStyle = '#4a5568';
-        ctx.font = '13px Kanit';
+        ctx.font      = axisFont;
         ctx.textAlign = 'center';
-        ctx.fillText(labels[i] || '', x, padding.top + chartHeight + 20);
-        
-        // Exercise name below date (truncate if long)
+        ctx.fillText(labels[i] || '', x, padding.top + chartHeight + (isMobile ? 16 : 20));
+
+        // X-axis: exercise name (truncated)
         if (exerciseNames && exerciseNames[i]) {
             let exName = exerciseNames[i];
-            if (exName.length > 8) exName = exName.substring(0, 7) + '…';
+            const maxCh = isMobile ? 5 : 8;
+            if (exName.length > maxCh) exName = exName.substring(0, maxCh - 1) + '…';
             ctx.fillStyle = '#718096';
-            ctx.font = '11px Kanit';
-            ctx.fillText(exName, x, padding.top + chartHeight + 38);
+            ctx.font      = exFont;
+            ctx.fillText(exName, x, padding.top + chartHeight + (isMobile ? 30 : 38));
         }
     });
 }
 
 function drawEmptyChart(ctx, canvas) {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const container = canvas.parentElement;
+    const dpr  = window.devicePixelRatio || 1;
+    const cssW = container.clientWidth || 400;
+    const cssH = Math.round(cssW / 2);
+    canvas.style.width  = cssW + 'px';
+    canvas.style.height = cssH + 'px';
+    canvas.width  = cssW * dpr;
+    canvas.height = cssH * dpr;
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, cssW, cssH);
     ctx.fillStyle = '#718096';
     ctx.font = '16px Kanit';
     ctx.textAlign = 'center';
-    ctx.fillText('ยังไม่มีข้อมูลการออกกำลังกาย', canvas.width / 2, canvas.height / 2);
+    ctx.fillText('ยังไม่มีข้อมูลการออกกำลังกาย', cssW / 2, cssH / 2);
+}
+
+// ── Auto-redraw on resize / screen rotate ───────────────────────
+let _chartResizeTimer = null;
+function _setupChartResize() {
+    const canvas = document.getElementById('progressChart');
+    if (!canvas) return;
+    const observer = new ResizeObserver(() => {
+        clearTimeout(_chartResizeTimer);
+        _chartResizeTimer = setTimeout(() => {
+            if (exerciseHistory.length > 0) updateChart();
+        }, 100);
+    });
+    observer.observe(canvas.parentElement);
 }
 
 // ===== NAVIGATION & UI =====
@@ -1008,6 +1061,7 @@ window.addEventListener('load', async function() {
         ]);
         
         initTableFunctions();
+        _setupChartResize();
         
         console.log('✅ Report initialized');
         console.log('📊 Sessions:', exerciseHistory.length);
