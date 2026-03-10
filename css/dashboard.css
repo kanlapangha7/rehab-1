@@ -70,7 +70,7 @@ body::before {
     position: fixed;
     top: 0;
     width: 100%;
-    background: rgba(30,136,229,0.95);
+    background: rgba(255, 255, 255, 0.95);
     backdrop-filter: blur(20px);
     z-index: 1000;
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
@@ -94,7 +94,7 @@ body::before {
 .user-avatar {
     width: 48px;
     height: 48px;
-    background: white;
+    background: rgb(183, 199, 221);
     color: var(--primary);
     border-radius: 50%;
     display: grid;
@@ -112,12 +112,12 @@ body::before {
 .user-name {
     font-weight: 600;
     font-size: 16px;
-    color: var(--text-white);
+    color: var(--text-black);
 }
 
 .user-status {
     font-size: 13px;
-    color: var(--text-white-soft);
+    color: var(--text-black-soft);
 }
 
 .header-right {
