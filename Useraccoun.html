@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>สร้างบัญชีใหม่ - ระบบกายภาพบำบัด</title>
-    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Prompt:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/stylesUser.css">
 </head>
 <body>
@@ -20,13 +20,12 @@
     <div class="container">
         <!-- Header Section -->
         <header class="header">
-            <div class="header-bg-animation"></div>
             <div class="header-content">
+                <div class="header-logo-wrap">
+                    <img src="image/logoo.jpeg" alt="SmartCare Stroke Rehabilitation" class="header-logo-img">
+                </div>
                 <h1>สร้างบัญชีใหม่</h1>
                 <p>ระบบกายภาพบำบัดสำหรับผู้ป่วยโรคหลอดเลือดสมอง</p>
-                <div class="header-icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
             </div>
         </header>
 
@@ -273,8 +272,6 @@
                                     <select id="userType" name="userType" required>
                                         <option value="">เลือกประเภทผู้ใช้</option>
                                         <option value="ผู้ป่วย">ผู้ป่วย</option>
-                                        <option value="นักกายภาพบำบัด">นักกายภาพบำบัด</option>
-                                        <option value="ผู้ดูแล">ผู้ดูแล</option>
                                     </select>
                                 </div>
                                 <div class="error-message"></div>
@@ -410,33 +407,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Conditional Fields for Physiotherapist -->
-                        <div class="conditional-fields therapist-fields" id="therapistFields" style="display: none;">
-                            <h3><i class="fas fa-stethoscope"></i> ข้อมูลเพิ่มเติมสำหรับนักกายภาพบำบัด</h3>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="licenseNumber">
-                                        <i class="fas fa-id-card"></i>
-                                        เลขที่ใบประกอบวิชาชีพ
-                                    </label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="licenseNumber" name="licenseNumber" placeholder="เลขที่ใบประกอบวิชาชีพ">
-                                    </div>
-                                </div>
-
-                                <div class="form-group">
-                                    <label for="specialization">
-                                        <i class="fas fa-award"></i>
-                                        ความเชี่ยวชาญ
-                                    </label>
-                                    <div class="input-wrapper">
-                                        <input type="text" id="specialization" name="specialization" placeholder="เช่น กายภาพบำบัดระบบประสาท">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
 
                     <div class="form-actions">
@@ -453,15 +423,6 @@
             </form>
         </main>
 
-        <!-- Connection Status -->
-        <div class="connection-status" id="connectionStatus">
-            <div class="status-content">
-                <div class="status-icon">
-                    <i class="fas fa-wifi"></i>
-                </div>
-                <span class="status-text">ตรวจสอบการเชื่อมต่อ...</span>
-            </div>
-        </div>
     </div>
 
     <!-- Success Modal -->
@@ -501,8 +462,6 @@
         </div>
     </div>
 
-    <!-- Scripts -->
-    <!-- ⚠️ ต้องโหลด api-config.js ก่อน! -->
     <script src="JS/api-config.js"></script>
     <script src="JS/useraccoun.js"></script>
 </body>
